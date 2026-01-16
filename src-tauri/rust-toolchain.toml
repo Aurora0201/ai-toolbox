@@ -1,0 +1,4 @@
+[toolchain]
+channel = "stable" 
+# targets = [ "x86_64-unknown-linux-gnu" ] # 可选：如果以后需要交叉编译再加
+# components = [ "rustfmt", "clippy" ]     # 可选：强制安装组件
