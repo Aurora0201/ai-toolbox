@@ -1,0 +1,76 @@
+name: CI Check
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+    - 'src-tauri/**'
+    - 'src/**'
+    - 'package.json'
+    - '.github/workflows/**'
+    - 'eslint.config.js' # 加上这个，以后改 lint 配置也会触发 CI
+  pull_request:
+    branches: [ "main" ]
+    paths:
+    - 'src-tauri/**'
+    - 'src/**'
+    - 'package.json'
+    - '.github/workflows/**'
+    - 'eslint.config.js' # 加上这个，以后改 lint 配置也会触发 CI
+
+# 只有当文件改动涉及到以下路径时才触发（节省资源）
+
+
+jobs:
+  test-and-build:
+    name: Test on Ubuntu
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. 安装 Linux 编译依赖 (Tauri 必需)
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      # 2. 安装 Rust
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      # 3. 缓存 Rust (加速构建)
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      # 4. 安装 Node
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Frontend Deps
+        run: npm install
+
+      # 5. 代码质量检查
+      - name: Lint Frontend
+        run: npm run lint # 确保你的 package.json 里有这个命令，没有就跳过
+        continue-on-error: true # 暂时允许 lint 失败，以后再严格
+
+      - name: Lint Rust (Clippy)
+        run: |
+          cd src-tauri
+          cargo clippy -- -D warnings
+
+      # 6. 运行测试
+      - name: Run Rust Tests
+        run: |
+          cd src-tauri
+          cargo test
+
+      # 7. 模拟构建 (确保能编译通过)
+      - name: Build Check
+        run: npm run tauri build -- --debug
