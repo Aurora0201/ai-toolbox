@@ -6,6 +6,7 @@
       :running-models="store.runningModels"
       :loading="store.loading"
       :pulling="pulling"
+      :pull-progress="store.pullProgress"
       :loading-states="loadingStates"
       @pull="pullModel"
       @start="startModel"
@@ -26,6 +27,7 @@
 import { ref, onMounted } from 'vue'
 import { useModelStore } from '../store/models'
 import { useToast } from '../composables/useToast'
+import { useConfirm } from '../composables/useConfirm'
 import ModelList from './models/ModelList.vue'
 import RunningProcesses from './models/RunningProcesses.vue'
 
@@ -35,6 +37,7 @@ import RunningProcesses from './models/RunningProcesses.vue'
  */
 const store = useModelStore()
 const { addToast } = useToast()
+const { confirm } = useConfirm()
 
 const pulling = ref(false)
 const loadingStates = ref({}) // map of modelName -> 'starting' | 'stopping' | 'deleting'
@@ -95,7 +98,15 @@ const stopModel = async (name) => {
  * @param {string} name 
  */
 const deleteModel = async (name) => {
-  if (!confirm(`Are you sure you want to delete ${name}?`)) return
+  const confirmed = await confirm({
+    title: 'Delete Model',
+    message: `Are you sure you want to delete ${name}? This action cannot be undone.`,
+    confirmText: 'Delete',
+    cancelText: 'Cancel'
+  })
+  
+  if (!confirmed) return
+  
   if (loadingStates.value[name]) return
   loadingStates.value[name] = 'deleting'
   try {
@@ -113,6 +124,7 @@ onMounted(() => {
   store.fetchModels()
   store.fetchRunningModels()
   store.fetchGpuInfo()
+  store.setupPullListener()
   
   // Refresh running models and GPU info every 5 seconds
   const interval = setInterval(() => {

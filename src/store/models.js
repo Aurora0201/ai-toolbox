@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event'
 
 /**
  * Pinia store for managing Ollama models, running processes, and system resource info.
@@ -11,6 +12,7 @@ export const useModelStore = defineStore('models', {
     loading: false,       // Loading state for model list
     selectedModel: '',    // Currently selected model for chat
     gpuInfo: { name: '', total: 0, used: 0 }, // GPU resource usage
+    pullProgress: { status: '', completed: 0, total: 0, percentage: 0 }, // Progress of current model pull
   }),
 
   actions: {
@@ -57,16 +59,33 @@ export const useModelStore = defineStore('models', {
     },
 
     /**
+     * Sets up a listener for model pull progress events.
+     */
+    async setupPullListener() {
+      await listen('pull-progress', (event) => {
+        const { status, completed, total } = event.payload
+        let percentage = 0
+        if (total > 0) {
+          percentage = Math.round((completed / total) * 100)
+        }
+        this.pullProgress = { status, completed, total, percentage }
+      })
+    },
+
+    /**
      * Pulls (downloads) a new model by name.
      * @param {string} name - The name of the model to pull (e.g., "llama3").
      */
     async pullModel(name) {
+      this.pullProgress = { status: 'Initializing...', completed: 0, total: 0, percentage: 0 }
       try {
         await invoke('pull_model', { name })
         await this.fetchModels()
       } catch (error) {
         console.error('Failed to pull model:', error)
         throw error
+      } finally {
+        this.pullProgress = { status: '', completed: 0, total: 0, percentage: 0 }
       }
     },
 

@@ -2,6 +2,10 @@
 import TitleBar from "./components/TitleBar.vue";
 import AppSidebar from "./components/AppSidebar.vue";
 import ToastContainer from "./components/ToastContainer.vue";
+import ConfirmDialog from "./components/common/ConfirmDialog.vue";
+import { useConfirm } from "./composables/useConfirm";
+
+const { state, onConfirm, onCancel } = useConfirm();
 </script>
 
 <template>
@@ -14,6 +18,15 @@ import ToastContainer from "./components/ToastContainer.vue";
       </main>
     </div>
     <ToastContainer position="top-right" />
+    <ConfirmDialog 
+      :show="state.show"
+      :title="state.title"
+      :message="state.message"
+      :confirm-text="state.confirmText"
+      :cancel-text="state.cancelText"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+    />
   </div>
 </template>
 

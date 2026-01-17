@@ -40,6 +40,23 @@
           {{ pulling ? 'Pulling...' : 'Pull' }}
         </button>
       </div>
+
+      <!-- Pull Progress Bar -->
+      <div
+        v-if="pulling"
+        class="pull-progress-container mb-3"
+      >
+        <div class="progress-info mb-1">
+          <span class="status">{{ pullProgress.status }}</span>
+          <span class="percentage text-mono">{{ pullProgress.percentage }}%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div 
+            class="progress-bar-fill" 
+            :style="{ width: pullProgress.percentage + '%' }"
+          />
+        </div>
+      </div>
       
       <!-- Models List -->
       <div
@@ -93,6 +110,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  pullProgress: {
+    type: Object,
+    default: () => ({ status: '', completed: 0, total: 0, percentage: 0 })
+  },
   loadingStates: {
     type: Object,
     default: () => ({})
@@ -129,4 +150,33 @@ const isModelRunning = (name) => {
 .text-center { text-align: center; }
 .p-3 { padding: 16px; }
 .list-group { display: flex; flex-direction: column; }
+
+.pull-progress-container {
+  padding: 12px;
+  background-color: var(--bg-sidebar);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.progress-bar-bg {
+  height: 6px;
+  background-color: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+.mb-1 { margin-bottom: 4px; }
 </style>
