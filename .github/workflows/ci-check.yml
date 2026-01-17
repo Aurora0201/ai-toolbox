@@ -2,7 +2,7 @@ name: CI Check
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
     paths:
     - 'src-tauri/**'
     - 'src/**'
@@ -10,7 +10,7 @@ on:
     - '.github/workflows/**'
     - 'eslint.config.js' # 加上这个，以后改 lint 配置也会触发 CI
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
     paths:
     - 'src-tauri/**'
     - 'src/**'
