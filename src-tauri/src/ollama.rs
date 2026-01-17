@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use reqwest::Client;
 use anyhow::{Result, Context};
+use futures_util::StreamExt;
 
 /// Represents a model installed in Ollama.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -34,6 +35,15 @@ pub struct ProcessResponse {
 pub struct OllamaClient {
     client: Client,
     base_url: String,
+}
+
+/// Represents the progress of a model pull operation.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PullProgress {
+    pub status: String,
+    pub digest: Option<String>,
+    pub total: Option<u64>,
+    pub completed: Option<u64>,
 }
 
 impl OllamaClient {
@@ -88,13 +98,32 @@ impl OllamaClient {
         Ok(())
     }
     
-    /// Pull (download) a new model from the Ollama library.
-    pub async fn pull_model(&self, name: String) -> Result<()> {
+    /// Pull (download) a new model from the Ollama library with progress reporting.
+    pub async fn pull_model<F, Fut>(&self, name: String, on_progress: F) -> Result<()> 
+    where 
+        F: Fn(PullProgress) -> Fut,
+        Fut: std::future::Future<Output = ()>,
+    {
         let url = format!("{}/api/pull", self.base_url);
-        self.client.post(url)
-            .json(&serde_json::json!({ "name": name, "stream": false }))
+        let resp = self.client.post(url)
+            .json(&serde_json::json!({ "name": name, "stream": true }))
             .send().await
             .context("Failed to send pull_model request")?;
+
+        let mut stream = resp.bytes_stream();
+        while let Some(item) = stream.next().await {
+            let chunk = item.context("Error while reading pull stream")?;
+            // A chunk might contain multiple JSON objects separated by newlines
+            let cursor = std::io::Cursor::new(chunk);
+            let deserializer = serde_json::Deserializer::from_reader(cursor);
+            let mut iter = deserializer.into_iter::<PullProgress>();
+            
+            while let Some(progress_result) = iter.next() {
+                if let Ok(progress) = progress_result {
+                    on_progress(progress).await;
+                }
+            }
+        }
         Ok(())
     }
 

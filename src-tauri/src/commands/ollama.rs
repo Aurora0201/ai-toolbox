@@ -1,4 +1,4 @@
-use tauri::State;
+use tauri::{State, Window, Emitter};
 use crate::AppState;
 use crate::ollama::{Model, RunningModel};
 
@@ -22,8 +22,14 @@ pub async fn delete_model(state: State<'_, AppState>, name: String) -> Result<()
 
 /// Command to pull a new model from Ollama.
 #[tauri::command]
-pub async fn pull_model(state: State<'_, AppState>, name: String) -> Result<(), String> {
-    state.ollama.pull_model(name).await.map_err(|e| e.to_string())
+pub async fn pull_model(
+    state: State<'_, AppState>, 
+    window: Window,
+    name: String
+) -> Result<(), String> {
+    state.ollama.pull_model(name, |progress| async {
+        let _ = window.emit("pull-progress", progress);
+    }).await.map_err(|e| e.to_string())
 }
 
 /// Command to start (load) a model into memory.
