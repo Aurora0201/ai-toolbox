@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use reqwest::Client;
 use anyhow::{Result, Context};
 use futures_util::StreamExt;
+use std::sync::Mutex;
 
 /// Represents a model installed in Ollama.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -34,7 +35,7 @@ pub struct ProcessResponse {
 /// Client for interacting with the Ollama API.
 pub struct OllamaClient {
     client: Client,
-    base_url: String,
+    base_url: Mutex<String>,
 }
 
 /// Represents the progress of a model pull operation.
@@ -51,13 +52,27 @@ impl OllamaClient {
     pub fn new(base_url: String) -> Self {
         Self {
             client: Client::new(),
-            base_url,
+            base_url: Mutex::new(base_url),
         }
+    }
+
+    /// Update the base URL for the Ollama API.
+    pub fn set_base_url(&self, new_url: String) {
+        if let Ok(mut url) = self.base_url.lock() {
+            *url = new_url;
+        }
+    }
+
+    /// Get the current base URL.
+    fn get_base_url(&self) -> String {
+        self.base_url.lock()
+            .map(|url| url.clone())
+            .unwrap_or_else(|_| "http://localhost:11434".to_string())
     }
 
     /// Fetch the list of installed models.
     pub async fn get_tags(&self) -> Result<Vec<Model>> {
-        let url = format!("{}/api/tags", self.base_url);
+        let url = format!("{}/api/tags", self.get_base_url());
         let resp = self.client.get(url).send().await
             .context("Failed to send get_tags request")?;
         let tags: TagsResponse = resp.json().await
@@ -67,7 +82,7 @@ impl OllamaClient {
 
     /// Fetch the list of currently running models.
     pub async fn get_running_models(&self) -> Result<Vec<RunningModel>> {
-        let url = format!("{}/api/ps", self.base_url);
+        let url = format!("{}/api/ps", self.get_base_url());
         let resp = self.client.get(url).send().await
             .context("Failed to send get_running_models request")?;
         let ps: ProcessResponse = resp.json().await
@@ -77,7 +92,7 @@ impl OllamaClient {
 
     /// Delete an installed model.
     pub async fn delete_model(&self, name: String) -> Result<()> {
-        let url = format!("{}/api/delete", self.base_url);
+        let url = format!("{}/api/delete", self.get_base_url());
         self.client.delete(url)
             .json(&serde_json::json!({ "name": name }))
             .send().await
@@ -87,7 +102,7 @@ impl OllamaClient {
 
     /// Unload a model from memory (VRAM) by setting its keep_alive to 0.
     pub async fn unload_model(&self, name: String) -> Result<()> {
-        let url = format!("{}/api/generate", self.base_url);
+        let url = format!("{}/api/generate", self.get_base_url());
         self.client.post(url)
             .json(&serde_json::json!({
                 "model": name,
@@ -104,7 +119,7 @@ impl OllamaClient {
         F: Fn(PullProgress) -> Fut,
         Fut: std::future::Future<Output = ()>,
     {
-        let url = format!("{}/api/pull", self.base_url);
+        let url = format!("{}/api/pull", self.get_base_url());
         let resp = self.client.post(url)
             .json(&serde_json::json!({ "name": name, "stream": true }))
             .send().await
@@ -127,7 +142,7 @@ impl OllamaClient {
 
     /// Start (preload) a model by sending an empty generate request.
     pub async fn start_model(&self, name: String) -> Result<()> {
-        let url = format!("{}/api/generate", self.base_url);
+        let url = format!("{}/api/generate", self.get_base_url());
         self.client.post(url)
             .json(&serde_json::json!({
                 "model": name,

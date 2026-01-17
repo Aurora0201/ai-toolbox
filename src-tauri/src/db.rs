@@ -67,5 +67,12 @@ pub fn get_aggregated_stats(conn: &Connection) -> Result<Vec<TokenStat>> {
     for row in rows {
         stats.push(row.context("Failed to read row")?);
     }
-    Ok(stats)
-}
+        Ok(stats)
+    }
+    
+    /// Delete all records from the token_stats table.
+    pub fn clear_database(conn: &Connection) -> Result<()> {
+        conn.execute("DELETE FROM token_stats", []).context("Failed to clear database")?;
+        Ok(())
+    }
+    

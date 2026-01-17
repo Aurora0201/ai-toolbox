@@ -21,3 +21,10 @@ pub fn record_tokens(
     let conn = state.db.lock().map_err(|e| e.to_string())?;
     db::record_tokens(&conn, &date, prompt, completion, &model).map_err(|e| e.to_string())
 }
+
+/// Command to clear all application data (currently just token statistics).
+#[tauri::command]
+pub fn clear_all_data(state: State<'_, AppState>) -> Result<(), String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    db::clear_database(&conn).map_err(|e| e.to_string())
+}
