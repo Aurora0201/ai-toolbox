@@ -27,4 +27,5 @@ rusqlite = { version = "0.32", features = ["bundled"] }
 chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1", features = ["full"] }
 anyhow = "1"
+futures-util = "0.3"
 

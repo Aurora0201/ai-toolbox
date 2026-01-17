@@ -2,6 +2,10 @@ import globals from "globals";
 import pluginVue from "eslint-plugin-vue";
 
 export default [
+  // Global ignores
+  {
+    ignores: ["dist/**", "src-tauri/**", "node_modules/**"]
+  },
   // 1. 指定检查的文件类型
   {
     files: ["**/*.{js,mjs,cjs,vue}"],
