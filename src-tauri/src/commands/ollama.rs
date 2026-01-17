@@ -43,3 +43,16 @@ pub async fn start_model(state: State<'_, AppState>, name: String) -> Result<(),
 pub async fn unload_model(state: State<'_, AppState>, name: String) -> Result<(), String> {
     state.ollama.unload_model(name).await.map_err(|e| e.to_string())
 }
+
+/// Command to update the Ollama API endpoint.
+#[tauri::command]
+pub async fn update_ollama_config(state: State<'_, AppState>, endpoint: String) -> Result<(), String> {
+    state.ollama.set_base_url(endpoint);
+    Ok(())
+}
+
+/// Command to test the connection to an Ollama endpoint.
+#[tauri::command]
+pub async fn check_connection(state: State<'_, AppState>) -> Result<(), String> {
+    state.ollama.get_tags().await.map(|_| ()).map_err(|e| e.to_string())
+}

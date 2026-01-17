@@ -17,34 +17,33 @@
           >{{ char === ' ' ? '&nbsp;' : char }}</span>
         </h1>
         <p class="app-description">
-          Welcome to <strong>AI Toolbox</strong>, your high-performance desktop gateway to local large language models. 
-          Manage your Ollama library, monitor real-time generation, and analyze your usage with a professional, developer-centric interface.
+          {{ t.description }}
         </p>
         <div class="header-actions">
           <button
             class="btn btn-primary btn-lg"
             @click="router.push('/chat')"
           >
-            Start Chatting
+            {{ t.startChat }}
           </button>
           <button
             class="btn btn-outline btn-lg"
             @click="router.push('/models')"
           >
-            Manage Models
+            {{ t.manageModels }}
           </button>
         </div>
       </div>
     </header>
 
     <div class="section-divider">
-      <span class="divider-text">EXPLORE FEATURES</span>
+      <span class="divider-text">{{ t.exploreFeatures }}</span>
     </div>
 
     <main class="feature-grid">
       <FeatureCard
-        title="Intelligent Chat"
-        description="Connect with any local model instantly. Experience low-latency, private, and secure AI interactions."
+        :title="t.featureChatTitle"
+        :description="t.featureChatDesc"
         @click="router.push('/chat')"
       >
         <template #icon>
@@ -53,8 +52,8 @@
       </FeatureCard>
 
       <FeatureCard
-        title="Model Management"
-        description="Seamlessly pull, update, and manage your Ollama model library with advanced monitoring."
+        :title="t.featureModelsTitle"
+        :description="t.featureModelsDesc"
         @click="router.push('/models')"
       >
         <template #icon>
@@ -63,8 +62,8 @@
       </FeatureCard>
 
       <FeatureCard
-        title="Usage Analytics"
-        description="Deep dive into your local AI consumption. Track tokens, performance, and historical trends."
+        :title="t.featureStatsTitle"
+        :description="t.featureStatsDesc"
         @click="router.push('/dashboard')"
       >
         <template #icon>
@@ -73,8 +72,8 @@
       </FeatureCard>
 
       <FeatureCard
-        title="Advanced Settings"
-        description="Customize your model parameters, server connections, and application preferences."
+        :title="t.featureSettingsTitle"
+        :description="t.featureSettingsDesc"
         @click="router.push('/settings')"
       >
         <template #icon>
@@ -85,7 +84,7 @@
 
     <footer class="home-footer">
       <p class="text-muted">
-        Built for the local AI community. Powered by Tauri & Ollama.
+        {{ t.footer }}
       </p>
     </footer>
   </div>
@@ -96,13 +95,52 @@
  * Refined Home view with enhanced animations, professional descriptions, 
  * and improved visual hierarchy.
  */
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useSettingsStore } from '../store/settings'
 import FeatureCard from '../components/common/FeatureCard.vue'
 
 const router = useRouter()
-const slogan = 'Empower Your Local AI'
-const sloganChars = slogan.split('')
+const settings = useSettingsStore()
+
+const translations = {
+  en: {
+    slogan: 'Empower Your Local AI',
+    description: 'Welcome to AI Toolbox, your high-performance desktop gateway to local large language models. Manage your Ollama library, monitor real-time generation, and analyze your usage with a professional, developer-centric interface.',
+    startChat: 'Start Chatting',
+    manageModels: 'Manage Models',
+    exploreFeatures: 'EXPLORE FEATURES',
+    featureChatTitle: 'Intelligent Chat',
+    featureChatDesc: 'Connect with any local model instantly. Experience low-latency, private, and secure AI interactions.',
+    featureModelsTitle: 'Model Management',
+    featureModelsDesc: 'Seamlessly pull, update, and manage your Ollama model library with advanced monitoring.',
+    featureStatsTitle: 'Usage Analytics',
+    featureStatsDesc: 'Deep dive into your local AI consumption. Track tokens, performance, and historical trends.',
+    featureSettingsTitle: 'Advanced Settings',
+    featureSettingsDesc: 'Customize your model parameters, server connections, and application preferences.',
+    footer: 'Built for the local AI community. Powered by Tauri & Ollama.'
+  },
+  zh: {
+    slogan: '赋能您的本地 AI',
+    description: '欢迎使用 AI Toolbox，这是您通往本地大语言模型的高性能桌面门户。通过专业的、以开发者为中心的界面，管理您的 Ollama 库，监控实时生成，并分析您的使用情况。',
+    startChat: '开始对话',
+    manageModels: '管理模型',
+    exploreFeatures: '探索功能',
+    featureChatTitle: '智能对话',
+    featureChatDesc: '立即连接任何本地模型。体验低延迟、私密且安全的 AI 交互。',
+    featureModelsTitle: '模型管理',
+    featureModelsDesc: '无缝拉取、更新和管理您的 Ollama 模型库，并配有高级监控。',
+    featureStatsTitle: '用量分析',
+    featureStatsDesc: '深入了解您的本地 AI 消耗。追踪 Token、性能和历史趋势。',
+    featureSettingsTitle: '高级设置',
+    featureSettingsDesc: '自定义您的模型参数、服务器连接和应用程序首选项。',
+    footer: '为本地 AI 社区打造。由 Tauri & Ollama 驱动。'
+  }
+}
+
+const t = computed(() => translations[settings.language] || translations.en)
+
+const sloganChars = computed(() => t.value.slogan.split(''))
 
 const emojis = ['🤖', '🧠', '🚀', '🛠️', '✨', '📡', '💻', '🔮']
 const currentEmoji = ref(emojis[0])

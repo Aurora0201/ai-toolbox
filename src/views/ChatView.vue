@@ -22,7 +22,7 @@
               <span
                 class="role-badge text-mono"
                 :class="msg.role"
-              >{{ msg.role === 'user' ? 'YOU' : 'AI' }}</span>
+              >{{ msg.role === 'user' ? t.you : t.ai }}</span>
             </div>
             <div class="message-bubble panel">
               <div class="panel-body">
@@ -50,11 +50,11 @@
           </div>
           <div class="content-column">
             <div class="message-meta">
-              <span class="role-badge assistant text-mono">AI</span>
+              <span class="role-badge assistant text-mono">{{ t.ai }}</span>
             </div>
             <div class="message-bubble panel">
               <div class="panel-body text-muted">
-                <span class="typing-indicator">Thinking... 💭</span>
+                <span class="typing-indicator">{{ t.thinking }} 💭</span>
               </div>
             </div>
           </div>
@@ -76,7 +76,7 @@
             disabled
             value=""
           >
-            Select Model
+            {{ t.selectModel }}
           </option>
           <option
             v-for="model in store.models"
@@ -94,7 +94,7 @@
         <div class="input-wrapper">
           <textarea 
             v-model="input" 
-            placeholder="Type your message here..." 
+            :placeholder="t.placeholder" 
             :disabled="loading"
             rows="3"
             @keydown.enter.prevent="sendMessage"
@@ -131,15 +131,38 @@
 /**
  * Chat view component for interacting with models.
  */
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import { useModelStore } from '../store/models'
+import { useSettingsStore } from '../store/settings'
 import { invoke } from '@tauri-apps/api/core'
 
 const store = useModelStore()
+const settings = useSettingsStore()
 const input = ref('')
 const messages = ref([])
 const loading = ref(false)
 const messagesRef = ref(null)
+
+const translations = {
+  en: {
+    you: 'YOU',
+    ai: 'AI',
+    thinking: 'Thinking...',
+    selectModel: 'Select Model',
+    placeholder: 'Type your message here...',
+    errorMessage: 'Error: '
+  },
+  zh: {
+    you: '您',
+    ai: 'AI',
+    thinking: '正在思考...',
+    selectModel: '选择模型',
+    placeholder: '输入消息...',
+    errorMessage: '错误: '
+  }
+}
+
+const t = computed(() => translations[settings.language] || translations.en)
 
 /**
  * Sends a message to the selected Ollama model.
@@ -155,7 +178,11 @@ const sendMessage = async () => {
   await scrollToBottom()
 
   try {
-    const response = await fetch('http://localhost:11434/api/generate', {
+    const endpoint = settings.ollamaEndpoint.endsWith('/') 
+      ? `${settings.ollamaEndpoint}api/generate` 
+      : `${settings.ollamaEndpoint}/api/generate`
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       body: JSON.stringify({
         model: store.selectedModel,
@@ -176,7 +203,7 @@ const sendMessage = async () => {
     })
     
   } catch (error) {
-    messages.value.push({ role: 'assistant', content: 'Error: ' + error })
+    messages.value.push({ role: 'assistant', content: t.value.errorMessage + error })
   } finally {
     loading.value = false
     await scrollToBottom()

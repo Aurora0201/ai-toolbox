@@ -35,8 +35,11 @@ pub fn run() {
             commands::ollama::pull_model,
             commands::ollama::start_model,
             commands::ollama::unload_model,
+            commands::ollama::update_ollama_config,
+            commands::ollama::check_connection,
             commands::db::get_token_stats,
             commands::db::record_tokens,
+            commands::db::clear_all_data,
             commands::system::get_gpu_info
         ])
         .run(tauri::generate_context!())

@@ -138,7 +138,7 @@
 .sidebar {
   width: 240px;
   background-color: var(--bg-sidebar);
-  border-right: 1px solid var(--border-color);
+  border-right: 2px solid var(--border-color);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -150,7 +150,7 @@
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
   letter-spacing: -0.5px;
   display: flex;
   align-items: center;

@@ -1,9 +1,9 @@
 <template>
   <div class="dashboard-view">
     <div class="header-section mb-4">
-      <h1>Usage Analytics</h1>
+      <h1>{{ t.title }}</h1>
       <p class="text-muted">
-        Visualize your model interactions and token consumption over time.
+        {{ t.subtitle }}
       </p>
     </div>
 
@@ -11,7 +11,7 @@
       <div class="panel stat-card">
         <div class="panel-body">
           <div class="stat-label">
-            Total Prompt Tokens
+            {{ t.totalPrompt }}
           </div>
           <div class="stat-value text-primary">
             {{ totalPrompt }}
@@ -21,7 +21,7 @@
       <div class="panel stat-card">
         <div class="panel-body">
           <div class="stat-label">
-            Total Completion Tokens
+            {{ t.totalCompletion }}
           </div>
           <div class="stat-value text-success">
             {{ totalCompletion }}
@@ -31,7 +31,7 @@
       <div class="panel stat-card">
         <div class="panel-body">
           <div class="stat-label">
-            Days Active
+            {{ t.activeDays }}
           </div>
           <div class="stat-value">
             {{ activeDays }}
@@ -48,13 +48,34 @@
 /**
  * Dashboard view providing detailed usage analytics and statistics.
  */
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
+import { useSettingsStore } from '../store/settings'
 import TokenChart from '../components/TokenChart.vue'
 
+const settings = useSettingsStore()
 const totalPrompt = ref(0)
 const totalCompletion = ref(0)
 const activeDays = ref(0)
+
+const translations = {
+  en: {
+    title: 'Usage Analytics',
+    subtitle: 'Visualize your model interactions and token consumption over time.',
+    totalPrompt: 'Total Prompt Tokens',
+    totalCompletion: 'Total Completion Tokens',
+    activeDays: 'Days Active'
+  },
+  zh: {
+    title: '用量分析',
+    subtitle: '可视化您的模型交互和随时间变化的 Token 消耗。',
+    totalPrompt: '总提示词 Token',
+    totalCompletion: '总生成词 Token',
+    activeDays: '活跃天数'
+  }
+}
+
+const t = computed(() => translations[settings.language] || translations.en)
 
 /**
  * Fetches and calculates summary statistics from the token history.
