@@ -9,6 +9,7 @@ pub struct GpuInfo {
 /// Uses PowerShell on Windows for broad support (AMD/Intel/NVIDIA).
 #[tauri::command]
 pub async fn get_gpu_info() -> Result<GpuInfo, String> {
+    #[allow(unused_mut)]
     let mut info = GpuInfo::default();
 
     #[cfg(target_os = "windows")]

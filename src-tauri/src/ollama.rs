@@ -116,12 +116,10 @@ impl OllamaClient {
             // A chunk might contain multiple JSON objects separated by newlines
             let cursor = std::io::Cursor::new(chunk);
             let deserializer = serde_json::Deserializer::from_reader(cursor);
-            let mut iter = deserializer.into_iter::<PullProgress>();
+            let iter = deserializer.into_iter::<PullProgress>();
             
-            while let Some(progress_result) = iter.next() {
-                if let Ok(progress) = progress_result {
-                    on_progress(progress).await;
-                }
+            for progress in iter.flatten() {
+                on_progress(progress).await;
             }
         }
         Ok(())
