@@ -72,5 +72,5 @@ jobs:
           cargo test
 
       # 7. 模拟构建 (确保能编译通过)
-      - name: Build Check
-        run: npm run tauri build -- --debug
+      - name: Build Check (no bundel)
+        run: npm run tauri build -- --debug --no-bundle
