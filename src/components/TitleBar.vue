@@ -75,22 +75,24 @@ function close() {
 <style scoped>
 .titlebar {
   height: 32px;
-  background: #2f3241;
+  background: var(--bg-sidebar);
+  border-bottom: 2px solid var(--border-color);
   user-select: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  color: white;
+  color: var(--text-primary);
 }
 
 .title {
   margin-left: 15px;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   pointer-events: none; /* Let clicks pass through to drag region */
 }
 
@@ -102,7 +104,7 @@ function close() {
 .control-btn {
   background: transparent;
   border: none;
-  color: white;
+  color: var(--text-primary);
   width: 46px;
   height: 100%;
   display: flex;
@@ -114,11 +116,12 @@ function close() {
 }
 
 .control-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--bg-hover);
 }
 
 .control-btn.close:hover {
   background-color: #e81123;
+  color: white;
 }
 
 .control-btn svg {

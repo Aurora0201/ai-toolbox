@@ -1,18 +1,18 @@
 <template>
   <div class="panel mb-4">
     <div class="panel-header">
-      <span class="d-flex gap-2">📦 Installed Models</span>
+      <span class="d-flex gap-2">📦 {{ t.title }}</span>
       <span
         class="text-muted text-mono"
         style="font-size: 12px"
-      >{{ models.length }} items</span>
+      >{{ models.length }} {{ t.items }}</span>
     </div>
     <div class="panel-body">
       <!-- Pull Model Input -->
       <div class="d-flex gap-2 mb-3">
         <input 
           v-model="newModelName" 
-          placeholder="Pull model (e.g. llama3)" 
+          :placeholder="t.placeholder" 
           style="flex: 1"
           @keyup.enter="handlePull"
         >
@@ -37,7 +37,7 @@
             x2="12"
             y2="3"
           /></svg>
-          {{ pulling ? 'Pulling...' : 'Pull' }}
+          {{ pulling ? t.pulling : t.pull }}
         </button>
       </div>
 
@@ -66,7 +66,7 @@
         <div class="spinner mb-2">
           ⏳
         </div>
-        Loading library...
+        {{ t.loading }}
       </div>
       <div
         v-else
@@ -87,7 +87,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useSettingsStore } from '../../store/settings'
 import ModelItem from './ModelItem.vue'
 
 /**
@@ -119,6 +120,29 @@ const props = defineProps({
     default: () => ({})
   }
 })
+
+const settings = useSettingsStore()
+
+const translations = {
+  en: {
+    title: 'Installed Models',
+    items: 'items',
+    placeholder: 'Pull model (e.g. llama3)',
+    pull: 'Pull',
+    pulling: 'Pulling...',
+    loading: 'Loading library...'
+  },
+  zh: {
+    title: '已安装模型',
+    items: '个项目',
+    placeholder: '拉取模型 (例如 llama3)',
+    pull: '拉取',
+    pulling: '拉取中...',
+    loading: '正在加载模型库...'
+  }
+}
+
+const t = computed(() => translations[settings.language] || translations.en)
 
 const emit = defineEmits(['pull', 'start', 'delete'])
 

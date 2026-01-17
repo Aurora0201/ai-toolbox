@@ -1,4 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+@theme {
+  --color-primary: var(--primary-color);
+  --color-primary-hover: var(--primary-hover);
+  
+  --color-bg-app: var(--bg-app);
+  --color-bg-sidebar: var(--bg-sidebar);
+  --color-bg-panel: var(--bg-panel);
+  --color-bg-hover: var(--bg-hover);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+}
 
 :root {
   /* Geek Light Theme Variables */
@@ -11,7 +25,7 @@
   --text-secondary: #6c757d;
   --text-code: #d63384;
   
-  --border-color: #dee2e6;
+  --border-color: #adb5bd;
   
   --primary-color: #0d6efd; /* Tech Blue */
   --primary-hover: #0b5ed7;
@@ -19,24 +33,49 @@
   --danger-color: #dc3545;
   --warning-color: #ffc107;
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "PingFang SC", "Source Han Sans SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
   
-  --radius-sm: 4px;
-  --radius-md: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
   
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.dark {
+  /* Geek Dark Theme Variables (Dark Dimmed) */
+  --bg-app: #1c2128;
+  --bg-sidebar: #22272e;
+  --bg-panel: #2d333b;
+  --bg-hover: #373e47;
+  
+  --text-primary: #adbac7;
+  --text-secondary: #768390;
+  --text-code: #f69d50;
+  
+  --border-color: #373e47;
+  
+  --primary-color: #316dca;
+  --primary-hover: #388bfd;
+  --success-color: #347d39;
+  --danger-color: #e5534b;
+  --warning-color: #ae7c14;
 }
 
 body {
   background-color: var(--bg-app);
   color: var(--text-primary);
   font-family: var(--font-sans);
+  font-weight: 500;
   margin: 0;
   padding: 0;
   overflow: hidden; /* Prevent body scroll, handled by layout */
-  -webkit-font-smoothing: antialiased;
+}
+
+/* Thicker font for Chinese mode */
+:root[lang="zh"] body {
+  font-weight: 600;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -44,6 +83,16 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   color: var(--text-primary);
   margin-top: 0;
+}
+
+/* Thicker headers for Chinese mode */
+:root[lang="zh"] h1, 
+:root[lang="zh"] h2, 
+:root[lang="zh"] h3, 
+:root[lang="zh"] h4, 
+:root[lang="zh"] h5, 
+:root[lang="zh"] h6 {
+  font-weight: 700;
 }
 
 /* Utility Classes */
@@ -83,9 +132,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-outline {
-  border-color: var(--border-color);
+  border: 2px solid var(--border-color);
   color: var(--text-primary);
-  background-color: white;
+  background-color: var(--bg-panel);
 }
 .btn-outline:hover {
   background-color: var(--bg-hover);
@@ -95,7 +144,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-danger {
   background-color: var(--danger-color);
   color: white;
-  border: 1px solid var(--danger-color);
+  border: 2px solid var(--danger-color);
 }
 .btn-danger:hover {
   background-color: #bb2d3b;
@@ -117,9 +166,9 @@ h1, h2, h3, h4, h5, h6 {
 input, select, textarea {
   font-family: var(--font-sans);
   padding: 8px 12px;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-sm);
-  background-color: white;
+  background-color: var(--bg-panel);
   color: var(--text-primary);
   font-size: 14px;
   outline: none;
@@ -134,14 +183,15 @@ input:focus, select:focus, textarea:focus {
 /* Cards / Panels */
 .panel {
   background: var(--bg-panel);
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
+  overflow: hidden;
   /* box-shadow: var(--shadow-sm); removed for flatter geek look */
 }
 
 .panel-header {
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
   background: var(--bg-sidebar); /* Subtle contrast */
   font-weight: 600;
   font-size: 14px;

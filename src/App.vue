@@ -1,34 +1,95 @@
 <script setup>
-import TitleBar from "./components/TitleBar.vue";
-import AppSidebar from "./components/AppSidebar.vue";
-import ToastContainer from "./components/ToastContainer.vue";
-import ConfirmDialog from "./components/common/ConfirmDialog.vue";
-import { useConfirm } from "./composables/useConfirm";
+import { onMounted, ref } from 'vue'
+import AppSidebar from './components/AppSidebar.vue'
+import TitleBar from './components/TitleBar.vue'
+import ToastContainer from './components/ToastContainer.vue'
+import ConfirmDialog from './components/common/ConfirmDialog.vue'
+import { useSettingsStore } from './store/settings'
+import { useConfirm } from './composables/useConfirm'
 
-const { state, onConfirm, onCancel } = useConfirm();
+const settings = useSettingsStore()
+const { state: confirmState, onConfirm, onCancel } = useConfirm()
+const isReady = ref(false)
+
+onMounted(async () => {
+  settings.init()
+  await settings.syncToBackend()
+  isReady.value = true
+})
 </script>
 
 <template>
-  <div class="app-layout">
+  <div
+    v-if="isReady"
+    class="app-layout"
+  >
     <TitleBar />
     <div class="main-container">
       <AppSidebar />
       <main class="content-area">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <transition
+            name="fade"
+            mode="out-in"
+          >
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </main>
     </div>
-    <ToastContainer position="top-right" />
-    <ConfirmDialog 
-      :show="state.show"
-      :title="state.title"
-      :message="state.message"
-      :confirm-text="state.confirmText"
-      :cancel-text="state.cancelText"
+    <ToastContainer />
+    <ConfirmDialog
+      :show="confirmState.show"
+      :title="confirmState.title"
+      :message="confirmState.message"
+      :confirm-text="confirmState.confirmText"
+      :cancel-text="confirmState.cancelText"
       @confirm="onConfirm"
       @cancel="onCancel"
     />
   </div>
+  <div
+    v-else
+    class="loading-screen"
+  >
+    <div class="loading-spinner" />
+  </div>
 </template>
+
+<style>
+/* Global Transition and Layout Styles */
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--bg-app);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--bg-hover);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
 
 <style scoped>
 .app-layout {
@@ -38,15 +99,14 @@ const { state, onConfirm, onCancel } = useConfirm();
   width: 100vw;
   background-color: var(--bg-app);
   overflow: hidden; /* Critical: prevent body scroll */
+  position: relative;
+  border-radius: var(--radius-md);
 }
 
 .main-container {
   display: flex;
   flex: 1;
-  /* TitleBar is usually around 30-32px. If it's fixed/absolute, we might need padding. 
-     If it's in the flex flow, we don't. Assuming TitleBar is in flex flow or fixed?
-     Let's check TitleBar style. It is fixed. So we need margin-top.
-  */
+  /* TitleBar is fixed at 32px height */
   margin-top: 32px; 
   height: calc(100vh - 32px);
   overflow: hidden;

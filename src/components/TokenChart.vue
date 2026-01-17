@@ -1,10 +1,10 @@
 <template>
   <div class="panel mt-4">
     <div class="panel-header">
-      <span>Token Usage Trend</span>
+      <span>{{ t.title }}</span>
       <div class="legend">
-        <span class="dot primary" /> Input
-        <span class="dot success ml-2" /> Output
+        <span class="dot primary" /> {{ t.input }}
+        <span class="dot success ml-2" /> {{ t.output }}
       </div>
     </div>
     <div class="panel-body">
@@ -17,15 +17,32 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import * as echarts from 'echarts'
 import { invoke } from '@tauri-apps/api/core'
+import { useSettingsStore } from '../store/settings'
 
 /**
  * TokenChart component visualizes input and output token usage over time using ECharts.
  */
 const chartRef = ref(null)
+const settings = useSettingsStore()
 let chart = null
+
+const translations = {
+  en: {
+    title: 'Token Usage Trend',
+    input: 'Input',
+    output: 'Output'
+  },
+  zh: {
+    title: 'Token 使用趋势',
+    input: '提示词 (Input)',
+    output: '生成词 (Output)'
+  }
+}
+
+const t = computed(() => translations[settings.language] || translations.en)
 
 /**
  * Fetches token statistics from the backend and updates the chart.
@@ -68,7 +85,7 @@ const updateChart = async () => {
       },
       series: [
         {
-          name: 'Input',
+          name: t.value.input,
           type: 'line',
           data: promptTokens,
           smooth: true,
@@ -78,7 +95,7 @@ const updateChart = async () => {
           lineStyle: { width: 2 }
         },
         {
-          name: 'Output',
+          name: t.value.output,
           type: 'line',
           data: completionTokens,
           smooth: true,
@@ -94,6 +111,10 @@ const updateChart = async () => {
     console.error('Failed to update chart:', error)
   }
 }
+
+watch(() => settings.language, () => {
+  updateChart()
+})
 
 onMounted(() => {
   // Initialize chart instance

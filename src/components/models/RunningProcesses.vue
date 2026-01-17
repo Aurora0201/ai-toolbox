@@ -4,7 +4,7 @@
       class="panel-header"
       style="justify-content: space-between; align-items: center;"
     >
-      <span class="d-flex gap-2">🚀 Running Processes</span>
+      <span class="d-flex gap-2">🚀 {{ t.title }}</span>
       
       <!-- GPU Info Section -->
       <div
@@ -42,7 +42,7 @@
         v-else
         class="text-success text-mono"
         style="font-size: 12px"
-      >Active</span>
+      >{{ t.active }}</span>
     </div>
     
     <div class="panel-body">
@@ -54,7 +54,7 @@
         <div style="font-size: 24px; margin-bottom: 8px;">
           😴
         </div>
-        No models currently running.
+        {{ t.noModels }}
       </div>
       
       <!-- Running Models List -->
@@ -67,15 +67,36 @@
           :key="model.name"
           class="list-item"
         >
-          <div class="item-info">
-            <div class="item-name text-mono text-primary d-flex gap-2">
-              <span class="status-dot" />
+          <!-- Left side: Icon & Name -->
+          <div class="item-main-info">
+            <div class="mini-icon-box">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line
+                x1="12"
+                y1="22.08"
+                x2="12"
+                y2="12"
+              /></svg>
+            </div>
+            <div class="item-name text-mono text-primary">
               {{ model.name }}
             </div>
-            <div class="item-meta text-muted">
-              VRAM: {{ formatSize(model.size_vram) }}
+            <div class="status-indicator">
+              <span class="status-dot" />
+              <span class="status-text text-success">{{ t.active }}</span>
             </div>
           </div>
+
+          <!-- Right side: Actions -->
           <div class="item-actions">
             <button 
               class="btn btn-sm btn-danger d-flex gap-1" 
@@ -83,7 +104,7 @@
               @click="$emit('stop', model.name)"
             >
               <template v-if="loadingStates[model.name] === 'stopping'">
-                ⏳ Stopping...
+                ⏳ {{ t.stopping }}
               </template>
               <template v-else>
                 <svg
@@ -104,7 +125,7 @@
                   rx="2"
                   ry="2"
                 /></svg>
-                Stop
+                {{ t.stop }}
               </template>
             </button>
           </div>
@@ -115,6 +136,9 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useSettingsStore } from '../../store/settings'
+
 /**
  * RunningProcesses component shows currently active models and system resource usage.
  */
@@ -132,6 +156,29 @@ defineProps({
     default: () => ({})
   }
 })
+
+const settings = useSettingsStore()
+
+const translations = {
+  en: {
+    title: 'Running Processes',
+    active: 'Active',
+    noModels: 'No models currently running.',
+    vram: 'VRAM',
+    stop: 'Stop',
+    stopping: 'Stopping...'
+  },
+  zh: {
+    title: '运行中的进程',
+    active: '活跃',
+    noModels: '当前没有正在运行的模型。',
+    vram: '显存占用',
+    stop: '停止',
+    stopping: '停止中...'
+  }
+}
+
+const t = computed(() => translations[settings.language] || translations.en)
 
 defineEmits(['stop'])
 
@@ -163,8 +210,8 @@ const formatSize = (bytes) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-color);
+  padding: 16px 12px;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .list-item:last-child {
@@ -172,24 +219,44 @@ const formatSize = (bytes) => {
   padding-bottom: 0;
 }
 
-.item-info {
+.item-main-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   flex: 1;
   min-width: 0;
-  margin-right: 16px;
+}
+
+.mini-icon-box {
+  width: 32px;
+  height: 32px;
+  background-color: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  flex-shrink: 0;
 }
 
 .item-name {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.item-meta {
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.status-text {
   font-size: 12px;
-  margin-top: 2px;
-  margin-left: 20px;
+  font-weight: 500;
 }
 
 .status-dot {
