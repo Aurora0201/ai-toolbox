@@ -1,467 +1,246 @@
 <template>
-  <div class="chat-container">
-    <div
-      ref="messagesRef"
-      class="messages"
-    >
-      <div
-        v-for="(msg, index) in messages"
-        :key="index"
-        :class="['message-wrapper', msg.role]"
-      >
-        <div class="message-row">
-          <div
-            v-if="msg.role === 'assistant'"
-            class="avatar"
-          >
-            🤖
-          </div>
-          
-          <div class="content-column">
-            <div class="message-meta">
-              <span
-                class="role-badge text-mono"
-                :class="msg.role"
-              >{{ msg.role === 'user' ? 'YOU' : 'AI' }}</span>
-            </div>
-            <div class="message-bubble panel">
-              <div class="panel-body">
-                {{ msg.content }}
-              </div>
-            </div>
-          </div>
-
-          <div
-            v-if="msg.role === 'user'"
-            class="avatar"
-          >
-            👤
-          </div>
+  <div class="home-container">
+    <header class="home-header">
+      <div class="hero-section">
+        <div class="logo-animation">
+          <span class="emoji-switcher">{{ currentEmoji }}</span>
         </div>
-      </div>
-      
-      <div
-        v-if="loading"
-        class="message-wrapper assistant"
-      >
-        <div class="message-row">
-          <div class="avatar">
-            🤖
-          </div>
-          <div class="content-column">
-            <div class="message-meta">
-              <span class="role-badge assistant text-mono">AI</span>
-            </div>
-            <div class="message-bubble panel">
-              <div class="panel-body text-muted">
-                <span class="typing-indicator">Thinking... 💭</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="input-area panel">
-      <div
-        class="panel-header"
-        style="background: transparent; padding: 8px 12px; border-bottom: none;"
-      >
-        <select
-          v-model="store.selectedModel"
-          class="model-select"
-          @change="store.selectModel($event.target.value)"
-        >
-          <option
-            disabled
-            value=""
-          >
-            Select Model
-          </option>
-          <option
-            v-for="model in store.models"
-            :key="model.name"
-            :value="model.name"
-          >
-            {{ model.name }}
-          </option>
-        </select>
-      </div>
-      <div
-        class="panel-body"
-        style="padding: 0 12px 12px 12px;"
-      >
-        <div class="input-wrapper">
-          <textarea 
-            v-model="input" 
-            placeholder="Type your message here..." 
-            :disabled="loading"
-            rows="3"
-            @keydown.enter.prevent="sendMessage"
-          />
+        <h1 class="slogan">
+          <span
+            v-for="(char, index) in sloganChars"
+            :key="index"
+            class="bouncing-char"
+            :style="{ 
+              animationDelay: `${index * 0.1}s`,
+              color: index < 7 ? 'var(--primary-color)' : 'inherit'
+            }"
+          >{{ char === ' ' ? '&nbsp;' : char }}</span>
+        </h1>
+        <p class="app-description">
+          Welcome to <strong>AI Toolbox</strong>, your high-performance desktop gateway to local large language models. 
+          Manage your Ollama library, monitor real-time generation, and analyze your usage with a professional, developer-centric interface.
+        </p>
+        <div class="header-actions">
           <button
-            :disabled="loading || !store.selectedModel"
-            class="btn btn-primary send-btn"
-            @click="sendMessage"
+            class="btn btn-primary btn-lg"
+            @click="router.push('/chat')"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            ><line
-              x1="22"
-              y1="2"
-              x2="11"
-              y2="13"
-            /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+            Start Chatting
+          </button>
+          <button
+            class="btn btn-outline btn-lg"
+            @click="router.push('/models')"
+          >
+            Manage Models
           </button>
         </div>
       </div>
+    </header>
+
+    <div class="section-divider">
+      <span class="divider-text">EXPLORE FEATURES</span>
     </div>
+
+    <main class="feature-grid">
+      <FeatureCard
+        title="Intelligent Chat"
+        description="Connect with any local model instantly. Experience low-latency, private, and secure AI interactions."
+        @click="router.push('/chat')"
+      >
+        <template #icon>
+          💬
+        </template>
+      </FeatureCard>
+
+      <FeatureCard
+        title="Model Management"
+        description="Seamlessly pull, update, and manage your Ollama model library with advanced monitoring."
+        @click="router.push('/models')"
+      >
+        <template #icon>
+          📦
+        </template>
+      </FeatureCard>
+
+      <FeatureCard
+        title="Usage Analytics"
+        description="Deep dive into your local AI consumption. Track tokens, performance, and historical trends."
+        @click="router.push('/dashboard')"
+      >
+        <template #icon>
+          📊
+        </template>
+      </FeatureCard>
+
+      <FeatureCard
+        title="Advanced Settings"
+        description="Customize your model parameters, server connections, and application preferences."
+        @click="router.push('/settings')"
+      >
+        <template #icon>
+          ⚙️
+        </template>
+      </FeatureCard>
+    </main>
+
+    <footer class="home-footer">
+      <p class="text-muted">
+        Built for the local AI community. Powered by Tauri & Ollama.
+      </p>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
-import { useModelStore } from '../store/models'
-import { invoke } from '@tauri-apps/api/core'
+/**
+ * Refined Home view with enhanced animations, professional descriptions, 
+ * and improved visual hierarchy.
+ */
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import FeatureCard from '../components/common/FeatureCard.vue'
 
-const store = useModelStore()
-const input = ref('')
-const messages = ref([])
-const loading = ref(false)
-const messagesRef = ref(null)
+const router = useRouter()
+const slogan = 'Empower Your Local AI'
+const sloganChars = slogan.split('')
 
-const sendMessage = async () => {
-  if (!input.value.trim() || !store.selectedModel) return
+const emojis = ['🤖', '🧠', '🚀', '🛠️', '✨', '📡', '💻', '🔮']
+const currentEmoji = ref(emojis[0])
+let emojiInterval
 
-  const userMsg = input.value
-  messages.value.push({ role: 'user', content: userMsg })
-  input.value = ''
-  loading.value = true
-  
-  await scrollToBottom()
+onMounted(() => {
+  // Rotate emojis every 2 seconds with a subtle transition effect
+  emojiInterval = setInterval(() => {
+    const currentIndex = emojis.indexOf(currentEmoji.value)
+    currentEmoji.value = emojis[(currentIndex + 1) % emojis.length]
+  }, 2000)
+})
 
-  try {
-    const response = await fetch('http://localhost:11434/api/generate', {
-      method: 'POST',
-      body: JSON.stringify({
-        model: store.selectedModel,
-        prompt: userMsg,
-        stream: false
-      })
-    })
-    
-    const data = await response.json()
-    messages.value.push({ role: 'assistant', content: data.response })
-    
-    const today = new Date().toISOString().split('T')[0]
-    await invoke('record_tokens', {
-      date: today,
-      prompt: data.prompt_eval_count || 0,
-      completion: data.eval_count || 0,
-      model: store.selectedModel
-    })
-    
-  } catch (error) {
-    messages.value.push({ role: 'assistant', content: 'Error: ' + error })
-  } finally {
-    loading.value = false
-    await scrollToBottom()
-  }
-}
-
-const scrollToBottom = async () => {
-  await nextTick()
-  if (messagesRef.value) {
-    messagesRef.value.scrollTop = messagesRef.value.scrollHeight
-  }
-}
-
-onMounted(async () => {
-  await store.fetchModels()
-  if (!store.selectedModel && store.models.length > 0) {
-    store.selectModel(store.models[0].name)
-  }
+onUnmounted(() => {
+  if (emojiInterval) clearInterval(emojiInterval)
 })
 </script>
 
 <style scoped>
-
-.chat-container {
-
-  display: flex;
-
-  flex-direction: column;
-
-  height: 100%;
-
-  padding: 24px;
-
-  max-width: 900px;
-
+.home-container {
+  padding: 64px 32px;
+  max-width: 1100px;
   margin: 0 auto;
-
-}
-
-
-
-.messages {
-
-  flex: 1;
-
-  overflow-y: auto;
-
-  margin-bottom: 24px;
-
-  padding-right: 8px;
-
-}
-
-
-
-.message-wrapper {
-
-  margin-bottom: 24px;
-
-}
-
-
-
-.message-row {
-
   display: flex;
-
-  gap: 12px;
-
-  max-width: 80%;
-
-}
-
-
-
-.message-wrapper.user .message-row {
-
-  flex-direction: row;
-
-  margin-left: auto;
-
-  justify-content: flex-end;
-
-}
-
-
-
-.avatar {
-
-  width: 36px;
-
-  height: 36px;
-
-  background-color: white;
-
-  border: 1px solid var(--border-color);
-
-  border-radius: 50%;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  font-size: 20px;
-
-  flex-shrink: 0;
-
-  box-shadow: var(--shadow-sm);
-
-}
-
-
-
-.content-column {
-
-  display: flex;
-
   flex-direction: column;
-
+  gap: 64px;
 }
 
-
-
-.message-wrapper.user .content-column {
-
-  align-items: flex-end;
-
+.home-header {
+  text-align: center;
 }
 
-
-
-.message-meta {
-
-  margin-bottom: 4px;
-
-}
-
-
-
-.role-badge {
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  color: var(--text-secondary);
-
-  text-transform: uppercase;
-
-}
-
-
-
-.message-bubble {
-
-  background: white;
-
-  box-shadow: var(--shadow-sm);
-
-  border-radius: var(--radius-md);
-
-  position: relative;
-
-}
-
-
-
-/* Bubbles have little tails? Maybe later. For now just clean rounded boxes. */
-
-.message-wrapper.assistant .message-bubble {
-
-  border-top-left-radius: 0;
-
-}
-
-
-
-.message-wrapper.user .message-bubble {
-
-  background: #f1f8ff; /* Very light blue for user */
-
-  border-color: #cce5ff;
-
-  border-top-right-radius: 0;
-
-}
-
-
-
-.input-area {
-
-  flex-shrink: 0;
-
-  border-color: var(--primary-color); /* Highlight input area */
-
-  box-shadow: var(--shadow-md);
-
-}
-
-
-
-.input-wrapper {
-
-  position: relative;
-
+.hero-section {
   display: flex;
-
-  align-items: flex-end;
-
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
 
-
-
-textarea {
-
-  width: 100%;
-
-  border: none; /* Managed by panel */
-
-  background: transparent;
-
-  resize: none;
-
-  font-family: var(--font-sans);
-
-  padding-right: 40px; /* Space for send button */
-
+.logo-animation {
+  font-size: 72px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 20px rgba(13, 110, 253, 0.2));
 }
 
-
-
-textarea:focus {
-
-  box-shadow: none;
-
+.emoji-switcher {
+  display: inline-block;
+  animation: pulse 2s infinite ease-in-out;
 }
 
-
-
-.send-btn {
-
-  position: absolute;
-
-  bottom: 0;
-
-  right: 0;
-
-  padding: 8px;
-
-  background: transparent;
-
-  color: var(--primary-color);
-
-  border: none;
-
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
-
-
-.send-btn:hover {
-
-  background: var(--bg-hover);
-
-  color: var(--primary-hover);
-
+.slogan {
+  font-size: 48px;
+  font-weight: 900;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  letter-spacing: -1px;
 }
 
+.bouncing-char {
+  display: inline-block;
+  animation: bounce 2s infinite ease-in-out;
+}
 
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-15px); }
+  60% { transform: translateY(-7px); }
+}
 
-.send-btn:disabled {
-
+.app-description {
+  font-size: 20px;
   color: var(--text-secondary);
-
+  max-width: 700px;
+  line-height: 1.6;
+  margin: 0;
 }
 
-
-
-.model-select {
-
-  border: none;
-
-  background: transparent;
-
-  font-weight: 600;
-
-  color: var(--text-primary);
-
-  padding-left: 0;
-
+.header-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
 }
 
+.btn-lg {
+  padding: 12px 32px;
+  font-size: 16px;
+  border-radius: var(--radius-md);
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.divider-text {
+  padding: 0 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+.home-footer {
+  margin-top: 32px;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  padding-top: 32px;
+}
+
+@media (max-width: 850px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  .slogan {
+    font-size: 36px;
+  }
+}
 </style>

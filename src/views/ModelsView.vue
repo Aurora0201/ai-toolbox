@@ -8,13 +8,14 @@
     </div>
     
     <ModelManager />
-    <TokenChart />
   </div>
 </template>
 
 <script setup>
+/**
+ * Models view dedicated to managing the local Ollama model library.
+ */
 import ModelManager from '../components/ModelManager.vue'
-import TokenChart from '../components/TokenChart.vue'
 </script>
 
 <style scoped>
