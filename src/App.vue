@@ -1,6 +1,11 @@
 <script setup>
 import TitleBar from "./components/TitleBar.vue";
 import AppSidebar from "./components/AppSidebar.vue";
+import ToastContainer from "./components/ToastContainer.vue";
+import ConfirmDialog from "./components/common/ConfirmDialog.vue";
+import { useConfirm } from "./composables/useConfirm";
+
+const { state, onConfirm, onCancel } = useConfirm();
 </script>
 
 <template>
@@ -12,26 +17,18 @@ import AppSidebar from "./components/AppSidebar.vue";
         <router-view />
       </main>
     </div>
+    <ToastContainer position="top-right" />
+    <ConfirmDialog 
+      :show="state.show"
+      :title="state.title"
+      :message="state.message"
+      :confirm-text="state.confirmText"
+      :cancel-text="state.cancelText"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+    />
   </div>
 </template>
-
-<style>
-/* Global resets handled here or in main css */
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* Prevent body scroll, handle in content area */
-  background-color: #f6f6f6;
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #2f2f2f;
-    color: #f6f6f6;
-  }
-}
-</style>
 
 <style scoped>
 .app-layout {
@@ -39,26 +36,27 @@ body {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
+  background-color: var(--bg-app);
+  overflow: hidden; /* Critical: prevent body scroll */
 }
 
 .main-container {
   display: flex;
   flex: 1;
-  margin-top: 32px; /* Height of TitleBar */
+  /* TitleBar is usually around 30-32px. If it's fixed/absolute, we might need padding. 
+     If it's in the flex flow, we don't. Assuming TitleBar is in flex flow or fixed?
+     Let's check TitleBar style. It is fixed. So we need margin-top.
+  */
+  margin-top: 32px; 
   height: calc(100vh - 32px);
   overflow: hidden;
 }
 
 .content-area {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* Allow scrolling here */
   padding: 0;
-  background-color: var(--content-bg, #ffffff);
-}
-
-@media (prefers-color-scheme: dark) {
-  .content-area {
-    background-color: #1a1a1a;
-  }
+  background-color: var(--bg-app);
+  position: relative;
 }
 </style>
