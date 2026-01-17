@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "lint:rust": "cd src-tauri && cargo clippy -- -D warnings"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
