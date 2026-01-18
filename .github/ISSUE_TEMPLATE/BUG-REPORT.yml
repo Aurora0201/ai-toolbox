@@ -16,6 +16,8 @@ body:
       label: 问题描述 / Describe the bug
       description: 详细清晰的描述你遇到的问题，并附带截图 / Describe the problem you encountered in detail and clearly, and provide screenshots
       placeholder: Leave a comment
+    validations: 
+      required: true
 
   - type: textarea
     id: Reproduce
@@ -23,6 +25,8 @@ body:
       label: 复现步骤 / To Reproduce
       description: 请提供复现问题的步骤 / Steps to reproduce the behavior
       placeholder: Leave a comment
+    validations: 
+      required: true
 
   - type: checkboxes
     id: OS
