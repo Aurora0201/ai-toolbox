@@ -2,7 +2,6 @@ name: 问题反馈 / Bug Report
 description: 反馈你遇到的问题 / Report the issue you experiencing.
 title: "[Bug]: "
 labels: ["bug"]
-type: bug
 body:
   - type: markdown
     attributes:
@@ -31,11 +30,11 @@ body:
       label: 操作系统 / OS
       description: 你在什么系统上使用我们的软件？
       options:
-        - label: Windows (Default)
-          required: true
+        - label: Windows
         - label: Mac OS
         - label: Linux
-      default: 0
+    validations: 
+      required: true
   
   - type: textarea
     id: logs
