@@ -1,0 +1,46 @@
+name: 问题反馈 / Bug Report
+description: 反馈你遇到的问题 / Report the issue you experiencing.
+title: "[Bug]: "
+labels: ["bug"]
+type: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 提交问题前，请确认以下事项
+        * 请 **确认** 您已经查阅了官方文档以及常见问题列表
+        * 请 **确认** 已有的问题中没有人提交过类似的 issue，否则请在已有的 issue 下进行讨论
+
+  - type: textarea
+    id: Describe
+    attributes:
+      label: 问题描述 / Describe the bug
+      description: 详细清晰的描述你遇到的问题，并附带截图 / Describe the problem you encountered in detail and clearly, and provide screenshots
+      placeholder: Leave a comment
+
+  - type: textarea
+    id: Reproduce
+    attributes:
+      label: 复现步骤 / To Reproduce
+      description: 请提供复现问题的步骤 / Steps to reproduce the behavior
+      placeholder: Leave a comment
+
+  - type: checkboxes
+    id: OS
+    attributes:
+      label: 操作系统 / OS
+      description: 你在什么系统上使用我们的软件？
+      options:
+        - label: Windows (Default)
+          required: true
+        - label: Mac OS
+        - label: Linux
+      default: 0
+  
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志(勿上传日志文件，请粘贴日志内容) / Log (Do not upload the log file, paste the log content directly)
+      description: 请提供完整或相关部分的Debug日志
+      render: shell
+
