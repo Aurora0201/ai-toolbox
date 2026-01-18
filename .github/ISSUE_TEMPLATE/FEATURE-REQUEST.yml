@@ -1,0 +1,42 @@
+name: 功能请求 / Feature Request
+description: 提出你的功能请求 / Propose your feature request.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 提交问题前，请确认以下事项
+        * 请 **确认** 您已经查阅了官方文档以及常见问题列表
+        * 请 **确认** 已有的问题中没有人提交过类似的 issue，否则请在已有的 issue 下进行讨论
+
+  - type: textarea
+    id: Describe
+    attributes:
+      label: 功能描述 / Feature description
+      description: 详细清晰地描述你的功能请求 / A clear and concise description of what the feature is
+      placeholder: Leave a comment
+    validations: 
+      required: true
+
+  - type: textarea
+    id: use
+    attributes:
+      label: 使用场景 / Use case
+      description: 请提供复现问题的步骤 / Steps to reproduce the behavior
+      placeholder: Leave a comment
+    validations: 
+      required: true
+
+  - type: checkboxes
+    id: OS
+    attributes:
+      label: 适用系统 / Target OS
+      description: 你请选择该功能适用的操作系统（至少选择一个） / Please select the operating system(s) for this feature request (select at least one)
+      options:
+        - label: Windows
+        - label: Mac OS
+        - label: Linux
+    validations: 
+      required: true
+  
