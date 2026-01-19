@@ -23,7 +23,7 @@ body:
     id: use
     attributes:
       label: 使用场景 / Use case
-      description: 请提供复现问题的步骤 / Steps to reproduce the behavior
+      description: 请详细描述该功能的使用场景 / Please describe the use scenarios for this feature.
       placeholder: Leave a comment
     validations: 
       required: true
