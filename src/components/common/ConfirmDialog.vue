@@ -1,33 +1,38 @@
 <template>
-  <Transition name="fade">
+  <Transition
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    leave-active-class="transition-opacity duration-200 ease-in"
+    leave-to-class="opacity-0"
+  >
     <div
       v-if="show"
-      class="confirm-overlay"
+      class="fixed top-0 left-0 w-screen h-screen bg-black/50 flex items-center justify-center z-[9999]"
       @click.self="cancel"
     >
-      <div class="confirm-dialog panel">
-        <div class="panel-header">
+      <div class="w-full max-w-[400px] bg-background-surface border border-border rounded-lg shadow-md animate-[slide-up_0.2s_ease-out]">
+        <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm flex justify-between items-center text-text-main">
           <span>{{ title }}</span>
           <button
-            class="close-btn"
+            class="text-text-sub hover:text-text-main cursor-pointer bg-transparent border-none flex items-center justify-center p-0"
             @click="cancel"
           >
-            &times;
+            <X class="w-4 h-4" />
           </button>
         </div>
-        <div class="panel-body">
-          <p class="confirm-message">
+        <div class="p-6">
+          <p class="mb-6 text-sm text-text-main leading-relaxed">
             {{ message }}
           </p>
-          <div class="confirm-actions">
+          <div class="flex justify-end gap-3">
             <button
-              class="btn btn-outline"
+              class="px-4 py-2 rounded-md font-medium text-sm transition-colors border border-border text-text-main hover:bg-background-element"
               @click="cancel"
             >
               {{ cancelText }}
             </button>
             <button
-              class="btn btn-danger"
+              class="px-4 py-2 rounded-md font-medium text-sm transition-colors bg-danger text-white hover:opacity-90"
               @click="confirm"
             >
               {{ confirmText }}
@@ -44,6 +49,8 @@
  * Generic confirmation dialog component.
  * Adheres to OCP by allowing customization of text and actions.
  */
+import { X } from 'lucide-vue-next'
+
 defineProps({
   show: Boolean,
   title: {
@@ -70,73 +77,3 @@ const confirm = () => emit('confirm')
 const cancel = () => emit('cancel')
 </script>
 
-<style scoped>
-.confirm-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.confirm-dialog {
-  width: 100%;
-  max-width: 400px;
-  background-color: var(--bg-panel);
-  box-shadow: var(--shadow-md);
-  animation: slide-up 0.2s ease-out;
-}
-
-.confirm-message {
-  margin-bottom: 24px;
-  font-size: 14px;
-  color: var(--text-primary);
-  line-height: 1.5;
-}
-
-.confirm-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-}
-
-.close-btn:hover {
-  color: var(--text-primary);
-}
-
-@keyframes slide-up {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

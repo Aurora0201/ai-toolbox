@@ -1,43 +1,30 @@
 <template>
   <div
-    class="feature-card panel clickable"
+    class="bg-background-surface border border-border rounded-lg shadow-sm h-full cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-md group"
     @click="$emit('click')"
   >
-    <div class="panel-body">
-      <div class="card-icon">
+    <div class="flex items-center gap-5 p-6">
+      <div class="w-14 h-14 bg-background-element rounded-lg flex items-center justify-center text-3xl shrink-0">
         <slot name="icon" />
       </div>
-      <div class="card-content">
-        <h3 class="card-title">
+      <div class="flex-1">
+        <h3 class="text-lg font-semibold text-text-main mb-1">
           {{ title }}
         </h3>
-        <p class="card-description">
+        <p class="text-sm text-text-sub leading-snug">
           {{ description }}
         </p>
       </div>
-      <div class="card-arrow">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        ><line
-          x1="5"
-          y1="12"
-          x2="19"
-          y2="12"
-        /><polyline points="12 5 19 12 12 19" /></svg>
+      <div class="text-text-sub transition-transform duration-200 group-hover:text-primary group-hover:translate-x-1">
+        <ArrowRight class="w-5 h-5" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ArrowRight } from 'lucide-vue-next'
+
 /**
  * Common component for feature cards displayed on the home page.
  */
@@ -55,65 +42,3 @@ defineProps({
 defineEmits(['click'])
 </script>
 
-<style scoped>
-.feature-card {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border: 1px solid var(--border-color);
-  height: 100%;
-}
-
-.feature-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-md);
-}
-
-.panel-body {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 24px;
-}
-
-.card-icon {
-  font-size: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-md);
-}
-
-.card-content {
-  flex: 1;
-}
-
-.card-title {
-  margin: 0 0 4px 0;
-  font-size: 18px;
-  color: var(--text-primary);
-}
-
-.card-description {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.card-arrow {
-  color: var(--text-muted);
-  transition: transform 0.2s ease;
-}
-
-.feature-card:hover .card-arrow {
-  color: var(--primary-color);
-  transform: translateX(4px);
-}
-
-.clickable {
-  cursor: pointer;
-}
-</style>

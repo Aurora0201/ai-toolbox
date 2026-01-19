@@ -1,9 +1,15 @@
 <template>
   <div
-    class="toast-container"
-    :class="position"
+    class="fixed z-[9999] p-5 pointer-events-none flex flex-col gap-2.5"
+    :class="positionClasses[position]"
   >
-    <TransitionGroup name="toast">
+    <TransitionGroup
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 translate-x-full"
+      leave-active-class="transition-all duration-300 ease-in absolute"
+      leave-to-class="opacity-0 translate-x-full"
+      move-class="transition-all duration-300 ease-out"
+    >
       <ToastNotification
         v-for="toast in toasts"
         :key="toast.id"
@@ -27,44 +33,13 @@ const props = defineProps({
   }
 })
 
+const positionClasses = {
+  'top-right': 'top-10 right-0',
+  'top-left': 'top-10 left-0',
+  'bottom-right': 'bottom-0 right-0 flex-col-reverse',
+  'bottom-left': 'bottom-0 left-0 flex-col-reverse'
+}
+
 const { toasts, removeToast } = useToast()
 </script>
 
-<style scoped>
-.toast-container {
-  position: fixed;
-  z-index: 9999;
-  padding: 20px;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Positioning - Adjusted to avoid Title Bar (approx 32px + padding) */
-.top-right { top: 40px; right: 0; }
-.top-left { top: 40px; left: 0; }
-.bottom-right { bottom: 0; right: 0; }
-.bottom-left { bottom: 0; left: 0; }
-
-/* Stacking order */
-.bottom-right, .bottom-left {
-  flex-direction: column-reverse;
-}
-
-/* Vue Transitions */
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.4s ease;
-}
-
-.toast-enter-from {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.toast-leave-to {
-  opacity: 0;
-  transform: translateX(100%);
-}
-</style>

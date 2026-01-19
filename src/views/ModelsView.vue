@@ -1,8 +1,8 @@
 <template>
-  <div class="models-view">
-    <div class="header-section mb-4">
-      <h1>{{ t.title }}</h1>
-      <p class="text-muted">
+  <div class="p-8 max-w-[1000px] mx-auto">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-text-main">{{ t.title }}</h1>
+      <p class="text-text-sub mt-1">
         {{ t.subtitle }}
       </p>
     </div>
@@ -34,13 +34,3 @@ const translations = {
 
 const t = computed(() => translations[settings.language] || translations.en)
 </script>
-
-<style scoped>
-.models-view {
-  padding: 32px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.mb-4 { margin-bottom: 24px; }
-</style>

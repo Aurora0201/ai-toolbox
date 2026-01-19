@@ -1,5 +1,5 @@
 <template>
-  <div class="model-manager">
+  <div class="flex flex-col gap-6">
     <!-- Component for managing installed models -->
     <ModelList 
       :models="store.models" 
@@ -173,11 +173,3 @@ onMounted(() => {
   return () => clearInterval(interval)
 })
 </script>
-
-<style scoped>
-.model-manager {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-</style>

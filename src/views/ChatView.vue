@@ -1,31 +1,33 @@
 <template>
-  <div class="chat-view-container">
+  <div class="flex flex-col h-full p-6 max-w-[900px] mx-auto">
     <div
       ref="messagesRef"
-      class="messages"
+      class="flex-1 overflow-y-auto mb-6 pr-2"
     >
       <div
         v-for="(msg, index) in messages"
         :key="index"
-        :class="['message-wrapper', msg.role]"
+        class="mb-6"
       >
-        <div class="message-row">
+        <div class="flex gap-3 max-w-[85%]" :class="msg.role === 'user' ? 'ml-auto justify-end' : ''">
           <div
             v-if="msg.role === 'assistant'"
-            class="avatar"
+            class="w-9 h-9 bg-background-surface border border-border rounded-full flex items-center justify-center shrink-0 shadow-sm"
           >
-            🤖
+            <Bot class="w-5 h-5 text-primary" />
           </div>
           
-          <div class="content-column">
-            <div class="message-meta">
+          <div class="flex flex-col" :class="msg.role === 'user' ? 'items-end' : ''">
+            <div class="mb-1">
               <span
-                class="role-badge text-mono"
-                :class="msg.role"
+                class="text-[10px] font-bold text-text-sub uppercase font-mono"
               >{{ msg.role === 'user' ? t.you : t.ai }}</span>
             </div>
-            <div class="message-bubble panel">
-              <div class="panel-body">
+            <div 
+              class="p-3 border rounded-lg shadow-sm"
+              :class="msg.role === 'user' ? 'bg-primary/5 border-primary/20 rounded-tr-none' : 'bg-background-surface border-border rounded-tl-none'"
+            >
+              <div class="text-sm leading-relaxed whitespace-pre-wrap text-text-main">
                 {{ msg.content }}
               </div>
             </div>
@@ -33,28 +35,28 @@
 
           <div
             v-if="msg.role === 'user'"
-            class="avatar"
+            class="w-9 h-9 bg-background-surface border border-border rounded-full flex items-center justify-center shrink-0 shadow-sm"
           >
-            👤
+            <User class="w-5 h-5 text-text-sub" />
           </div>
         </div>
       </div>
       
       <div
         v-if="loading"
-        class="message-wrapper assistant"
+        class="mb-6"
       >
-        <div class="message-row">
-          <div class="avatar">
-            🤖
+        <div class="flex gap-3 max-w-[85%]">
+          <div class="w-9 h-9 bg-background-surface border border-border rounded-full flex items-center justify-center shrink-0 shadow-sm">
+            <Bot class="w-5 h-5 text-primary" />
           </div>
-          <div class="content-column">
-            <div class="message-meta">
-              <span class="role-badge assistant text-mono">{{ t.ai }}</span>
+          <div class="flex flex-col">
+            <div class="mb-1">
+              <span class="text-[10px] font-bold text-text-sub uppercase font-mono">{{ t.ai }}</span>
             </div>
-            <div class="message-bubble panel">
-              <div class="panel-body text-muted">
-                <span class="typing-indicator">{{ t.thinking }} 💭</span>
+            <div class="p-3 bg-background-surface border border-border rounded-lg shadow-sm rounded-tl-none">
+              <div class="text-muted flex items-center gap-2 text-sm">
+                <Loader2 class="w-4 h-4 animate-spin" /> {{ t.thinking }}
               </div>
             </div>
           </div>
@@ -62,14 +64,11 @@
       </div>
     </div>
 
-    <div class="input-area panel">
-      <div
-        class="panel-header"
-        style="background: transparent; padding: 8px 12px; border-bottom: none;"
-      >
+    <div class="bg-background-surface border border-primary/50 rounded-lg shadow-md">
+      <div class="p-2 px-3">
         <select
           v-model="store.selectedModel"
-          class="model-select"
+          class="w-auto bg-transparent border-none font-semibold text-text-main text-sm focus:ring-0 cursor-pointer outline-none py-1"
           @change="store.selectModel($event.target.value)"
         >
           <option
@@ -87,39 +86,22 @@
           </option>
         </select>
       </div>
-      <div
-        class="panel-body"
-        style="padding: 0 12px 12px 12px;"
-      >
-        <div class="input-wrapper">
+      <div class="p-3 pt-0">
+        <div class="relative flex items-end">
           <textarea 
             v-model="input" 
             :placeholder="t.placeholder" 
             :disabled="loading"
             rows="3"
+            class="w-full border-none bg-transparent resize-none p-0 pr-10 focus:ring-0 text-sm outline-none text-text-main placeholder:text-text-sub"
             @keydown.enter.prevent="sendMessage"
           />
           <button
             :disabled="loading || !store.selectedModel"
-            class="btn btn-primary send-btn"
+            class="absolute bottom-0 right-0 p-2 text-primary hover:bg-background-element rounded-md disabled:text-text-sub transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
             @click="sendMessage"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            ><line
-              x1="22"
-              y1="2"
-              x2="11"
-              y2="13"
-            /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+            <SendHorizontal class="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -135,6 +117,7 @@ import { ref, onMounted, nextTick, computed } from 'vue'
 import { useModelStore } from '../store/models'
 import { useSettingsStore } from '../store/settings'
 import { invoke } from '@tauri-apps/api/core'
+import { Bot, User, SendHorizontal, Loader2 } from 'lucide-vue-next'
 
 const store = useModelStore()
 const settings = useSettingsStore()
@@ -228,139 +211,3 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
-.chat-view-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 24px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.messages {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 24px;
-  padding-right: 8px;
-}
-
-.message-wrapper {
-  margin-bottom: 24px;
-}
-
-.message-row {
-  display: flex;
-  gap: 12px;
-  max-width: 80%;
-}
-
-.message-wrapper.user .message-row {
-  flex-direction: row;
-  margin-left: auto;
-  justify-content: flex-end;
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  background-color: white;
-  border: 1px solid var(--border-color);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
-}
-
-.content-column {
-  display: flex;
-  flex-direction: column;
-}
-
-.message-wrapper.user .content-column {
-  align-items: flex-end;
-}
-
-.message-meta {
-  margin-bottom: 4px;
-}
-
-.role-badge {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-}
-
-.message-bubble {
-  background: white;
-  box-shadow: var(--shadow-sm);
-  border-radius: var(--radius-md);
-  position: relative;
-}
-
-.message-wrapper.assistant .message-bubble {
-  border-top-left-radius: 0;
-}
-
-.message-wrapper.user .message-bubble {
-  background: #f1f8ff;
-  border-color: #cce5ff;
-  border-top-right-radius: 0;
-}
-
-.input-area {
-  flex-shrink: 0;
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-md);
-}
-
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-}
-
-textarea {
-  width: 100%;
-  border: none;
-  background: transparent;
-  resize: none;
-  font-family: var(--font-sans);
-  padding-right: 40px;
-}
-
-textarea:focus {
-  box-shadow: none;
-}
-
-.send-btn {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  padding: 8px;
-  background: transparent;
-  color: var(--primary-color);
-  border: none;
-}
-
-.send-btn:hover {
-  background: var(--bg-hover);
-  color: var(--primary-hover);
-}
-
-.send-btn:disabled {
-  color: var(--text-secondary);
-}
-
-.model-select {
-  border: none;
-  background: transparent;
-  font-weight: 600;
-  color: var(--text-primary);
-  padding-left: 0;
-}
-</style>
