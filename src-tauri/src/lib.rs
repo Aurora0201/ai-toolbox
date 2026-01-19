@@ -1,6 +1,9 @@
 mod db;
 mod ollama;
 mod commands;
+mod error;
+
+pub use error::{AppError, AppResult};
 
 use ollama::OllamaClient;
 use std::sync::Mutex;
