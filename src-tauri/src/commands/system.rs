@@ -1,4 +1,4 @@
-use crate::error::{AppResult, AppError};
+use crate::error::AppResult;
 
 #[derive(serde::Serialize, Clone, Default)]
 pub struct GpuInfo {
