@@ -1,4 +1,5 @@
-use crate::error::AppResult;
+use crate::error::{AppResult, AppError};
+use log::debug;
 
 #[derive(serde::Serialize, Clone, Default)]
 pub struct GpuInfo {
@@ -51,10 +52,7 @@ pub async fn get_gpu_info() -> AppResult<GpuInfo> {
                 }
             }
         } else {
-             // Optionally log stderr or return error. 
-             // Current logic seems to prefer returning default info if PS fails to output valid JSON or finds nothing.
-             // But if command failed (non-zero exit), maybe we should warn?
-             // For now, adhering to original behavior of returning defaults, but proper IO errors are propagated.
+
         }
     }
 

@@ -1,7 +1,7 @@
-use serde::Serialize;
 use thiserror::Error;
+use log::error;
 
-#[derive(Debug, Error, Serialize)]
+#[derive(Debug, Error)]
 pub enum AppError {
     #[error("Database error: {0}")]
     Database(String),
@@ -17,6 +17,14 @@ pub enum AppError {
 
     #[error("Unknown error: {0}")]
     Unknown(String),
+}
+
+// Custom From implementation to inject automatic logging
+impl From<AppError> for tauri::ipc::InvokeError {
+    fn from(err: AppError) -> Self {
+        error!("Command Error: {}", err);
+        tauri::ipc::InvokeError::from(err.to_string())
+    }
 }
 
 // Implement From for common errors to simplify conversion
