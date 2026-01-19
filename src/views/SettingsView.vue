@@ -1,31 +1,31 @@
 <template>
-  <div class="settings-view">
-    <div class="header-section mb-4">
-      <h1>{{ t.title }}</h1>
-      <p class="text-muted">
+  <div class="p-8 max-w-[900px] mx-auto">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-text-main">{{ t.title }}</h1>
+      <p class="text-text-sub mt-1">
         {{ t.subtitle }}
       </p>
     </div>
 
     <!-- General Settings -->
-    <div class="panel mb-4">
-      <div class="panel-header">
-        <span class="font-semibold">{{ t.general }}</span>
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
+      <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
+        <span>{{ t.general }}</span>
       </div>
-      <div class="panel-body space-y-6">
+      <div class="p-6 space-y-6">
         <!-- Theme Mode -->
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-medium text-primary-text">
+            <div class="font-medium text-text-main">
               {{ t.themeMode }}
             </div>
-            <div class="text-sm text-muted">
+            <div class="text-sm text-text-sub">
               {{ t.themeDesc }}
             </div>
           </div>
           <select 
             v-model="settings.theme" 
-            class="w-40"
+            class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             @change="handleThemeChange"
           >
             <option value="light">
@@ -43,16 +43,16 @@
         <!-- Language -->
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-medium text-primary-text">
+            <div class="font-medium text-text-main">
               {{ t.language }}
             </div>
-            <div class="text-sm text-muted">
+            <div class="text-sm text-text-sub">
               {{ t.languageDesc }}
             </div>
           </div>
           <select 
             v-model="settings.language"
-            class="w-40"
+            class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none"
           >
             <option value="zh">
               简体中文
@@ -66,37 +66,37 @@
     </div>
 
     <!-- AI Connection -->
-    <div class="panel mb-4">
-      <div class="panel-header">
-        <span class="font-semibold">{{ t.aiConnection }}</span>
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
+      <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
+        <span>{{ t.aiConnection }}</span>
       </div>
-      <div class="panel-body space-y-4">
+      <div class="p-6 space-y-4">
         <div>
-          <label class="block text-sm font-medium mb-1 text-primary-text">{{ t.ollamaEndpoint }}</label>
+          <label class="block text-sm font-medium mb-1 text-text-main">{{ t.ollamaEndpoint }}</label>
           <div class="flex gap-2">
             <input 
               v-model="tempEndpoint"
               type="text" 
               placeholder="http://127.0.0.1:11434"
-              class="flex-1 transition-colors"
-              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': !isValidUrl }"
+              class="flex-1 px-3 py-2 border border-border rounded-md bg-background-surface text-sm text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+              :class="{ 'border-danger focus:border-danger focus:ring-danger': !isValidUrl }"
             >
             <button 
-              class="btn btn-outline min-w-[160px] gap-2"
+              class="px-4 py-2 rounded-md font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px] border border-border text-text-main hover:bg-background-element"
               :disabled="isChecking || !isValidUrl"
               @click="handleCheckConnection"
             >
-              <span
+              <Loader2
                 v-if="isChecking"
-                class="loading-spinner"
+                class="w-4 h-4 animate-spin"
               />
               <span
                 v-else-if="connectionStatus === 'success'"
-                class="text-success"
+                class="text-success font-semibold"
               >{{ t.connected }}</span>
               <span
                 v-else-if="connectionStatus === 'error'"
-                class="text-danger"
+                class="text-danger font-semibold"
               >{{ t.failed }}</span>
               <span v-else>{{ t.checkConnection }}</span>
             </button>
@@ -107,14 +107,14 @@
           >
             {{ t.validUrlError }}
           </p>
-          <p class="text-xs text-muted mt-1">
+          <p class="text-xs text-text-sub mt-1">
             {{ t.default }}: http://127.0.0.1:11434
           </p>
         </div>
         
         <div class="flex justify-end">
           <button 
-            class="btn btn-primary" 
+            class="px-4 py-2 rounded-md font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-primary text-white hover:bg-primary-hover" 
             :disabled="tempEndpoint === settings.ollamaEndpoint || !isValidUrl"
             @click="saveEndpoint"
           >
@@ -125,22 +125,22 @@
     </div>
 
     <!-- Application Data -->
-    <div class="panel mb-4">
-      <div class="panel-header">
-        <span class="font-semibold">{{ t.appData }}</span>
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
+      <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
+        <span>{{ t.appData }}</span>
       </div>
-      <div class="panel-body">
+      <div class="p-6">
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-medium text-primary-text">
+            <div class="font-medium text-text-main">
               {{ t.resetData }}
             </div>
-            <div class="text-sm text-muted">
+            <div class="text-sm text-text-sub">
               {{ t.resetDesc }}
             </div>
           </div>
           <button
-            class="btn btn-danger"
+            class="px-4 py-2 rounded-md font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-danger text-white hover:opacity-90"
             @click="handleResetData"
           >
             {{ t.clearDataBtn }}
@@ -150,33 +150,29 @@
     </div>
 
     <!-- About -->
-    <div class="panel">
-      <div class="panel-header">
-        <span class="font-semibold">{{ t.about }}</span>
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm">
+      <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
+        <span>{{ t.about }}</span>
       </div>
-      <div class="panel-body p-6">
+      <div class="p-6">
         <div class="flex flex-col items-center">
           <img
             src="/tauri.svg"
             alt="App Logo"
             class="w-16 h-16 mb-4"
           >
-          <h2 class="text-xl font-bold text-primary-text mb-1">
+          <h2 class="text-xl font-bold text-text-main mb-1">
             AI Toolbox
           </h2>
-          <p class="text-muted mb-6">
+          <p class="text-text-sub mb-6">
             {{ t.version }} {{ version }}
           </p>
           <a 
             href="https://github.com/Aurora0201/ai-toolbox" 
             target="_blank"
-            class="inline-flex items-center gap-2 text-primary hover:underline transition-colors"
+            class="inline-flex items-center gap-2 text-primary hover:underline transition-colors font-medium text-sm"
           >
-            <svg
-              class="w-5 h-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            ><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" /></svg>
+            <Github class="w-5 h-5" />
             {{ t.github }}
           </a>
         </div>
@@ -192,6 +188,7 @@ import { useToast } from '../composables/useToast'
 import { useConfirm } from '../composables/useConfirm'
 import { invoke } from '@tauri-apps/api/core'
 import packageJson from '../../package.json'
+import { Loader2, Github } from 'lucide-vue-next'
 
 const settings = useSettingsStore()
 const { addToast } = useToast()
@@ -354,38 +351,3 @@ const handleResetData = async () => {
   }
 }
 </script>
-
-<style scoped>
-.settings-view {
-  padding: 32px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.mb-4 { margin-bottom: 24px; }
-.p-6 { padding: 32px; }
-
-.space-y-6 > * + * {
-  margin-top: 24px;
-}
-
-.space-y-4 > * + * {
-  margin-top: 16px;
-}
-
-.text-danger { color: var(--danger-color); }
-.text-success { color: var(--success-color); }
-
-.loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(0,0,0,0.1);
-  border-top-color: currentColor;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-</style>

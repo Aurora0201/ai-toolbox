@@ -1,33 +1,33 @@
 <template>
-  <div class="home-container">
-    <header class="home-header">
-      <div class="hero-section">
-        <div class="logo-animation">
-          <span class="emoji-switcher">{{ currentEmoji }}</span>
+  <div class="py-16 px-8 max-w-[1100px] mx-auto flex flex-col gap-16">
+    <header class="text-center">
+      <div class="flex flex-col items-center gap-6">
+        <div class="text-7xl h-[90px] flex items-center justify-center drop-shadow-[0_0_20px_rgba(37,99,235,0.2)]">
+          <span class="inline-block animate-pulse">{{ currentEmoji }}</span>
         </div>
-        <h1 class="slogan">
+        <h1 class="text-5xl font-black m-0 flex justify-center tracking-tight text-text-main">
           <span
             v-for="(char, index) in sloganChars"
             :key="index"
-            class="bouncing-char"
+            class="inline-block animate-bounce"
             :style="{ 
               animationDelay: `${index * 0.1}s`,
-              color: index < 7 ? 'var(--primary-color)' : 'inherit'
+              color: index < 7 ? 'var(--primary)' : 'inherit'
             }"
           >{{ char === ' ' ? '&nbsp;' : char }}</span>
         </h1>
-        <p class="app-description">
+        <p class="text-xl text-text-sub max-w-[700px] leading-relaxed m-0">
           {{ t.description }}
         </p>
-        <div class="header-actions">
+        <div class="flex gap-4 mt-2">
           <button
-            class="btn btn-primary btn-lg"
+            class="px-8 py-3 text-base rounded-md bg-primary text-white hover:bg-primary-hover transition-colors font-medium shadow-sm"
             @click="router.push('/chat')"
           >
             {{ t.startChat }}
           </button>
           <button
-            class="btn btn-outline btn-lg"
+            class="px-8 py-3 text-base rounded-md border border-border text-text-main hover:bg-background-element hover:text-primary hover:border-primary transition-all font-medium bg-transparent"
             @click="router.push('/models')"
           >
             {{ t.manageModels }}
@@ -36,18 +36,18 @@
       </div>
     </header>
 
-    <div class="section-divider">
-      <span class="divider-text">{{ t.exploreFeatures }}</span>
+    <div class="flex items-center text-center text-text-sub before:flex-1 before:border-b before:border-border after:flex-1 after:border-b after:border-border">
+      <span class="px-5 text-xs font-bold tracking-widest uppercase">{{ t.exploreFeatures }}</span>
     </div>
 
-    <main class="feature-grid">
+    <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <FeatureCard
         :title="t.featureChatTitle"
         :description="t.featureChatDesc"
         @click="router.push('/chat')"
       >
         <template #icon>
-          💬
+          <MessageSquare class="w-8 h-8 text-primary" />
         </template>
       </FeatureCard>
 
@@ -57,7 +57,7 @@
         @click="router.push('/models')"
       >
         <template #icon>
-          📦
+          <Box class="w-8 h-8 text-primary" />
         </template>
       </FeatureCard>
 
@@ -67,7 +67,7 @@
         @click="router.push('/dashboard')"
       >
         <template #icon>
-          📊
+          <ChartBar class="w-8 h-8 text-primary" />
         </template>
       </FeatureCard>
 
@@ -77,13 +77,13 @@
         @click="router.push('/settings')"
       >
         <template #icon>
-          ⚙️
+          <Settings class="w-8 h-8 text-primary" />
         </template>
       </FeatureCard>
     </main>
 
-    <footer class="home-footer">
-      <p class="text-muted">
+    <footer class="mt-8 text-center border-t border-border pt-8 text-text-sub">
+      <p class="text-sm">
         {{ t.footer }}
       </p>
     </footer>
@@ -99,6 +99,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSettingsStore } from '../store/settings'
 import FeatureCard from '../components/common/FeatureCard.vue'
+import { MessageSquare, Box, ChartBar, Settings } from 'lucide-vue-next'
 
 const router = useRouter()
 const settings = useSettingsStore()
@@ -159,126 +160,3 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
-.home-container {
-  padding: 64px 32px;
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 64px;
-}
-
-.home-header {
-  text-align: center;
-}
-
-.hero-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-}
-
-.logo-animation {
-  font-size: 72px;
-  height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 0 20px rgba(13, 110, 253, 0.2));
-}
-
-.emoji-switcher {
-  display: inline-block;
-  animation: pulse 2s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.slogan {
-  font-size: 48px;
-  font-weight: 900;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  letter-spacing: -1px;
-}
-
-.bouncing-char {
-  display: inline-block;
-  animation: bounce 2s infinite ease-in-out;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-15px); }
-  60% { transform: translateY(-7px); }
-}
-
-.app-description {
-  font-size: 20px;
-  color: var(--text-secondary);
-  max-width: 700px;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 16px;
-  margin-top: 8px;
-}
-
-.btn-lg {
-  padding: 12px 32px;
-  font-size: 16px;
-  border-radius: var(--radius-md);
-}
-
-.section-divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  color: var(--text-muted);
-}
-
-.section-divider::before,
-.section-divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.divider-text {
-  padding: 0 20px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 32px;
-}
-
-.home-footer {
-  margin-top: 32px;
-  text-align: center;
-  border-top: 1px solid var(--border-color);
-  padding-top: 32px;
-}
-
-@media (max-width: 850px) {
-  .feature-grid {
-    grid-template-columns: 1fr;
-  }
-  .slogan {
-    font-size: 36px;
-  }
-}
-</style>

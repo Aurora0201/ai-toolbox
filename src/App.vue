@@ -6,6 +6,7 @@ import ToastContainer from './components/ToastContainer.vue'
 import ConfirmDialog from './components/common/ConfirmDialog.vue'
 import { useSettingsStore } from './store/settings'
 import { useConfirm } from './composables/useConfirm'
+import { Loader2 } from 'lucide-vue-next'
 
 const settings = useSettingsStore()
 const { state: confirmState, onConfirm, onCancel } = useConfirm()
@@ -21,15 +22,18 @@ onMounted(async () => {
 <template>
   <div
     v-if="isReady"
-    class="app-layout"
+    class="flex flex-col h-screen w-screen bg-background-app overflow-hidden relative rounded-lg"
   >
     <TitleBar />
-    <div class="main-container">
+    <div class="flex flex-1 mt-8 h-[calc(100vh-32px)] overflow-hidden">
       <AppSidebar />
-      <main class="content-area">
+      <main class="flex-1 overflow-y-auto p-0 bg-background-app relative">
         <router-view v-slot="{ Component }">
           <transition
-            name="fade"
+            enter-active-class="transition-opacity duration-200 ease-out"
+            enter-from-class="opacity-0"
+            leave-active-class="transition-opacity duration-200 ease-in"
+            leave-to-class="opacity-0"
             mode="out-in"
           >
             <component :is="Component" />
@@ -50,73 +54,9 @@ onMounted(async () => {
   </div>
   <div
     v-else
-    class="loading-screen"
+    class="flex justify-center items-center h-screen bg-background-app"
   >
-    <div class="loading-spinner" />
+    <Loader2 class="w-10 h-10 text-primary animate-spin" />
   </div>
 </template>
 
-<style>
-/* Global Transition and Layout Styles */
-.loading-screen {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: var(--bg-app);
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--bg-hover);
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
-
-<style scoped>
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  background-color: var(--bg-app);
-  overflow: hidden; /* Critical: prevent body scroll */
-  position: relative;
-  border-radius: var(--radius-md);
-}
-
-.main-container {
-  display: flex;
-  flex: 1;
-  /* TitleBar is fixed at 32px height */
-  margin-top: 32px; 
-  height: calc(100vh - 32px);
-  overflow: hidden;
-}
-
-.content-area {
-  flex: 1;
-  overflow-y: auto; /* Allow scrolling here */
-  padding: 0;
-  background-color: var(--bg-app);
-  position: relative;
-}
-</style>

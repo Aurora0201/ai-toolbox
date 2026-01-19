@@ -1,42 +1,26 @@
 <template>
-  <div class="panel mb-4">
-    <div class="panel-header">
-      <span class="d-flex gap-2">📦 {{ t.title }}</span>
-      <span
-        class="text-muted text-mono"
-        style="font-size: 12px"
-      >{{ models.length }} {{ t.items }}</span>
+  <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
+    <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm flex justify-between items-center text-text-main">
+      <span class="flex items-center gap-2">
+        <Box class="w-4 h-4" /> {{ t.title }}
+      </span>
+      <span class="text-text-sub font-mono text-xs">{{ models.length }} {{ t.items }}</span>
     </div>
-    <div class="panel-body">
+    <div class="p-4">
       <!-- Pull Model Input -->
-      <div class="d-flex gap-2 mb-3">
+      <div class="flex gap-2 mb-4">
         <input 
           v-model="newModelName" 
           :placeholder="t.placeholder" 
-          style="flex: 1"
+          class="flex-1 w-full p-2.5 rounded-md border border-border bg-background-surface text-text-main text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
           @keyup.enter="handlePull"
         >
         <button
           :disabled="pulling"
-          class="btn btn-primary d-flex gap-2"
+          class="px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors bg-primary text-white hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
           @click="handlePull"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line
-            x1="12"
-            y1="15"
-            x2="12"
-            y2="3"
-          /></svg>
+          <Download class="w-4 h-4" />
           {{ pulling ? t.pulling : t.pull }}
         </button>
       </div>
@@ -44,15 +28,15 @@
       <!-- Pull Progress Bar -->
       <div
         v-if="pulling"
-        class="pull-progress-container mb-3"
+        class="p-3 bg-background-element border border-border rounded-md mb-4"
       >
-        <div class="progress-info mb-1">
-          <span class="status">{{ pullProgress.status }}</span>
-          <span class="percentage text-mono">{{ pullProgress.percentage }}%</span>
+        <div class="flex justify-between text-xs text-text-sub mb-1">
+          <span class="font-medium">{{ pullProgress.status }}</span>
+          <span class="font-mono">{{ pullProgress.percentage }}%</span>
         </div>
-        <div class="progress-bar-bg">
+        <div class="h-1.5 bg-border rounded-full overflow-hidden">
           <div 
-            class="progress-bar-fill" 
+            class="h-full bg-primary transition-all duration-300" 
             :style="{ width: pullProgress.percentage + '%' }"
           />
         </div>
@@ -61,16 +45,14 @@
       <!-- Models List -->
       <div
         v-if="loading"
-        class="text-center p-3 text-muted"
+        class="text-center p-4 text-text-sub flex flex-col items-center gap-2"
       >
-        <div class="spinner mb-2">
-          ⏳
-        </div>
+        <Loader2 class="w-6 h-6 text-primary animate-spin" />
         {{ t.loading }}
       </div>
       <div
         v-else
-        class="list-group"
+        class="flex flex-col"
       >
         <ModelItem 
           v-for="model in models" 
@@ -90,6 +72,7 @@
 import { ref, computed } from 'vue'
 import { useSettingsStore } from '../../store/settings'
 import ModelItem from './ModelItem.vue'
+import { Box, Download, Loader2 } from 'lucide-vue-next'
 
 /**
  * ModelList component manages the display of installed models and the pull interface.
@@ -166,41 +149,3 @@ const isModelRunning = (name) => {
 }
 </script>
 
-<style scoped>
-.mb-3 { margin-bottom: 16px; }
-.mb-4 { margin-bottom: 24px; }
-.gap-2 { gap: 8px; }
-.d-flex { display: flex; align-items: center; }
-.text-center { text-align: center; }
-.p-3 { padding: 16px; }
-.list-group { display: flex; flex-direction: column; }
-
-.pull-progress-container {
-  padding: 12px;
-  background-color: var(--bg-sidebar);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.progress-bar-bg {
-  height: 6px;
-  background-color: var(--border-color);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background-color: var(--primary-color);
-  transition: width 0.3s ease;
-}
-
-.mb-1 { margin-bottom: 4px; }
-</style>

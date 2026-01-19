@@ -1,16 +1,16 @@
 <template>
-  <div class="panel mt-4">
-    <div class="panel-header">
+  <div class="bg-background-surface border border-border rounded-lg shadow-sm mt-6">
+    <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm flex justify-between items-center text-text-main">
       <span>{{ t.title }}</span>
-      <div class="legend">
-        <span class="dot primary" /> {{ t.input }}
-        <span class="dot success ml-2" /> {{ t.output }}
+      <div class="flex items-center text-xs text-text-sub">
+        <span class="w-2 h-2 rounded-full mr-1 inline-block bg-primary" /> {{ t.input }}
+        <span class="w-2 h-2 rounded-full mr-1 inline-block bg-success ml-3" /> {{ t.output }}
       </div>
     </div>
-    <div class="panel-body">
+    <div class="p-4">
       <div
         ref="chartRef"
-        class="chart"
+        class="h-[300px] w-full"
       />
     </div>
   </div>
@@ -60,7 +60,7 @@ const updateChart = async () => {
         trigger: 'axis',
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderColor: '#dee2e6',
-        textStyle: { color: '#212529', fontFamily: 'Inter' },
+        textStyle: { color: '#212529', fontFamily: 'sans-serif' },
         axisPointer: { type: 'line', lineStyle: { color: '#adb5bd' } }
       },
       grid: {
@@ -74,14 +74,14 @@ const updateChart = async () => {
         type: 'category',
         data: dates,
         axisLine: { lineStyle: { color: '#dee2e6' } },
-        axisLabel: { color: '#6c757d', fontFamily: 'JetBrains Mono' },
+        axisLabel: { color: '#6c757d', fontFamily: 'monospace' },
         axisTick: { show: false }
       },
       yAxis: {
         type: 'value',
         axisLine: { show: false },
         splitLine: { lineStyle: { color: '#f1f3f5' } },
-        axisLabel: { color: '#6c757d', fontFamily: 'JetBrains Mono' }
+        axisLabel: { color: '#6c757d', fontFamily: 'monospace' }
       },
       series: [
         {
@@ -91,7 +91,7 @@ const updateChart = async () => {
           smooth: true,
           symbol: 'circle',
           symbolSize: 6,
-          itemStyle: { color: '#0d6efd' },
+          itemStyle: { color: '#2563EB' },
           lineStyle: { width: 2 }
         },
         {
@@ -101,7 +101,7 @@ const updateChart = async () => {
           smooth: true,
           symbol: 'circle',
           symbolSize: 6,
-          itemStyle: { color: '#198754' },
+          itemStyle: { color: '#10B981' },
           lineStyle: { width: 2 }
         }
       ]
@@ -132,26 +132,3 @@ onUnmounted(() => {
   }
 })
 </script>
-
-<style scoped>
-.mt-4 { margin-top: 24px; }
-.chart { height: 300px; width: 100%; }
-
-.legend {
-  font-size: 12px;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 4px;
-}
-.dot.primary { background-color: var(--primary-color); }
-.dot.success { background-color: var(--success-color); }
-.ml-2 { margin-left: 12px; }
-</style>

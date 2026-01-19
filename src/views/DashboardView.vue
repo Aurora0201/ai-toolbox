@@ -1,39 +1,39 @@
 <template>
-  <div class="dashboard-view">
-    <div class="header-section mb-4">
-      <h1>{{ t.title }}</h1>
-      <p class="text-muted">
+  <div class="p-8 max-w-[1000px] mx-auto">
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-text-main">{{ t.title }}</h1>
+      <p class="text-text-sub mt-1">
         {{ t.subtitle }}
       </p>
     </div>
 
-    <div class="stats-overview grid-3 mb-4">
-      <div class="panel stat-card">
-        <div class="panel-body">
-          <div class="stat-label">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-background-surface border border-border rounded-lg shadow-sm text-center">
+        <div class="p-6">
+          <div class="text-xs font-semibold text-text-sub uppercase mb-2">
             {{ t.totalPrompt }}
           </div>
-          <div class="stat-value text-primary">
+          <div class="text-3xl font-bold font-mono text-primary">
             {{ totalPrompt }}
           </div>
         </div>
       </div>
-      <div class="panel stat-card">
-        <div class="panel-body">
-          <div class="stat-label">
+      <div class="bg-background-surface border border-border rounded-lg shadow-sm text-center">
+        <div class="p-6">
+          <div class="text-xs font-semibold text-text-sub uppercase mb-2">
             {{ t.totalCompletion }}
           </div>
-          <div class="stat-value text-success">
+          <div class="text-3xl font-bold font-mono text-success">
             {{ totalCompletion }}
           </div>
         </div>
       </div>
-      <div class="panel stat-card">
-        <div class="panel-body">
-          <div class="stat-label">
+      <div class="bg-background-surface border border-border rounded-lg shadow-sm text-center">
+        <div class="p-6">
+          <div class="text-xs font-semibold text-text-sub uppercase mb-2">
             {{ t.activeDays }}
           </div>
-          <div class="stat-value">
+          <div class="text-3xl font-bold font-mono text-text-main">
             {{ activeDays }}
           </div>
         </div>
@@ -96,42 +96,3 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.dashboard-view {
-  padding: 32px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.mb-4 { margin-bottom: 32px; }
-
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.stat-card {
-  text-align: center;
-}
-
-.stat-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  font-family: var(--font-mono);
-}
-
-@media (max-width: 768px) {
-  .grid-3 {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

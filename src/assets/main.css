@@ -1,210 +1,53 @@
-@import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --color-primary: var(--primary-color);
-  --color-primary-hover: var(--primary-hover);
-  
-  --color-bg-app: var(--bg-app);
-  --color-bg-sidebar: var(--bg-sidebar);
-  --color-bg-panel: var(--bg-panel);
-  --color-bg-hover: var(--bg-hover);
+@layer base {
+  :root {
+    /* Font Stack */
+    --font-sans: "Google Sans", "Roboto", "Noto Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    --font-mono: "Roboto Mono", "Menlo", "Consolas", monospace;
 
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
+    /* Core Palette */
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --danger: #EF4444;
+    --success: #10B981;
+
+    /* Light Mode */
+    --bg-app: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-element: #F1F5F9;
+    --border: #E2E8F0;
+    --text-main: #0F172A;
+    --text-sub: #64748B;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --focus-ring: rgba(37, 99, 235, 0.2);
+  }
+
+  /* Dark Mode */
+  html.dark {
+    --bg-app: #0F172A;
+    --bg-surface: #1E293B;
+    --bg-element: #334155;
+    --border: #334155;
+    --text-main: #F8FAFC;
+    --text-sub: #94A3B8;
+    --primary: #3B82F6;
+    --primary-hover: #60A5FA;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --focus-ring: rgba(59, 130, 246, 0.4);
+  }
+
+  body {
+    @apply font-sans bg-background-app text-text-main antialiased;
+    /* Optimize for Chinese font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-:root {
-  /* Geek Light Theme Variables */
-  --bg-app: #ffffff;
-  --bg-sidebar: #f8f9fa;
-  --bg-panel: #ffffff;
-  --bg-hover: #e9ecef;
-  
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --text-code: #d63384;
-  
-  --border-color: #adb5bd;
-  
-  --primary-color: #0d6efd; /* Tech Blue */
-  --primary-hover: #0b5ed7;
-  --success-color: #198754; /* Tech Green */
-  --danger-color: #dc3545;
-  --warning-color: #ffc107;
-
-  --font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "PingFang SC", "Source Han Sans SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
-  
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
-}
-
-.dark {
-  /* Geek Dark Theme Variables (Dark Dimmed) */
-  --bg-app: #1c2128;
-  --bg-sidebar: #22272e;
-  --bg-panel: #2d333b;
-  --bg-hover: #373e47;
-  
-  --text-primary: #adbac7;
-  --text-secondary: #768390;
-  --text-code: #f69d50;
-  
-  --border-color: #373e47;
-  
-  --primary-color: #316dca;
-  --primary-hover: #388bfd;
-  --success-color: #347d39;
-  --danger-color: #e5534b;
-  --warning-color: #ae7c14;
-}
-
-body {
-  background-color: var(--bg-app);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-weight: 500;
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* Prevent body scroll, handled by layout */
-}
-
-/* Thicker font for Chinese mode */
-:root[lang="zh"] body {
-  font-weight: 600;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-sans); /* Keep headers clean, maybe mono for specific data headers */
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-top: 0;
-}
-
-/* Thicker headers for Chinese mode */
-:root[lang="zh"] h1, 
-:root[lang="zh"] h2, 
-:root[lang="zh"] h3, 
-:root[lang="zh"] h4, 
-:root[lang="zh"] h5, 
-:root[lang="zh"] h6 {
-  font-weight: 700;
-}
-
-/* Utility Classes */
-.text-mono { font-family: var(--font-mono); }
-.text-muted { color: var(--text-secondary); }
-.text-primary { color: var(--primary-color); }
-.text-success { color: var(--success-color); }
-
-/* Buttons - Minimalist Geek Style */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 16px;
-  font-family: var(--font-sans);
-  font-weight: 500;
-  font-size: 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: transparent;
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-  color: white;
-}
-.btn-primary:hover { background-color: var(--primary-hover); }
-
-.btn-success {
-  background-color: var(--success-color);
-  color: white;
-}
-.btn-success:hover {
-  background-color: #157347;
-}
-
-.btn-outline {
-  border: 2px solid var(--border-color);
-  color: var(--text-primary);
-  background-color: var(--bg-panel);
-}
-.btn-outline:hover {
-  background-color: var(--bg-hover);
-  border-color: #ced4da;
-}
-
-.btn-danger {
-  background-color: var(--danger-color);
-  color: white;
-  border: 2px solid var(--danger-color);
-}
-.btn-danger:hover {
-  background-color: #bb2d3b;
-  border-color: #bb2d3b;
-  color: white;
-}
-
-.btn-sm {
-  padding: 4px 10px;
-  font-size: 12px;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Forms */
-input, select, textarea {
-  font-family: var(--font-sans);
-  padding: 8px 12px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background-color: var(--bg-panel);
-  color: var(--text-primary);
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
-}
-
-/* Cards / Panels */
-.panel {
-  background: var(--bg-panel);
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  /* box-shadow: var(--shadow-sm); removed for flatter geek look */
-}
-
-.panel-header {
-  padding: 12px 16px;
-  border-bottom: 2px solid var(--border-color);
-  background: var(--bg-sidebar); /* Subtle contrast */
-  font-weight: 600;
-  font-size: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.panel-body {
-  padding: 16px;
-}
-
-/* Scrollbar Styling */
+/* Custom Scrollbar for Webkit */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -213,9 +56,8 @@ input:focus, select:focus, textarea:focus {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  @apply bg-slate-300 dark:bg-slate-600 rounded-full;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  @apply bg-slate-400 dark:bg-slate-500;
 }

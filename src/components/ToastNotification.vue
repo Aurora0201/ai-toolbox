@@ -1,27 +1,35 @@
 <template>
   <div
-    :class="['toast', type]"
+    class="flex items-start p-3 bg-white dark:bg-slate-800 rounded-md shadow-md min-w-[300px] max-w-[400px] border-l-4 pointer-events-auto"
+    :class="{
+      'border-success': type === 'success',
+      'border-danger': type === 'error',
+      'border-warning': type === 'warning',
+      'border-primary': type === 'info'
+    }"
     role="alert"
   >
-    <div class="toast-icon">
-      <span v-if="type === 'success'">✅</span>
-      <span v-else-if="type === 'error'">❌</span>
-      <span v-else-if="type === 'warning'">⚠️</span>
-      <span v-else>ℹ️</span>
+    <div class="mr-3 text-base flex items-center pt-0.5">
+      <CheckCircle v-if="type === 'success'" class="w-4 h-4 text-success" />
+      <AlertCircle v-else-if="type === 'error'" class="w-4 h-4 text-danger" />
+      <AlertTriangle v-else-if="type === 'warning'" class="w-4 h-4 text-warning" />
+      <Info v-else class="w-4 h-4 text-primary" />
     </div>
-    <div class="toast-content">
+    <div class="flex-1 text-sm text-text-main leading-snug">
       {{ message }}
     </div>
     <button
-      class="toast-close"
+      class="text-text-sub hover:text-text-main cursor-pointer bg-transparent border-none p-0 ml-2 flex items-center"
       @click="$emit('close')"
     >
-      ×
+      <X class="w-4 h-4" />
     </button>
   </div>
 </template>
 
 <script setup>
+import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-vue-next'
+
 defineProps({
   message: { type: String, required: true },
   type: { type: String, default: 'info' } // success, error, warning, info
@@ -30,49 +38,3 @@ defineProps({
 defineEmits(['close'])
 </script>
 
-<style scoped>
-.toast {
-  display: flex;
-  align-items: flex-start;
-  padding: 12px 16px;
-  background: white;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  min-width: 300px;
-  max-width: 400px;
-  border-left: 4px solid transparent;
-  pointer-events: auto;
-}
-
-.toast.success { border-left-color: var(--success-color); }
-.toast.error { border-left-color: var(--danger-color); }
-.toast.warning { border-left-color: var(--warning-color); }
-.toast.info { border-left-color: var(--primary-color); }
-
-.toast-icon {
-  margin-right: 12px;
-  font-size: 16px;
-}
-
-.toast-content {
-  flex: 1;
-  font-size: 14px;
-  color: var(--text-primary);
-  line-height: 1.4;
-}
-
-.toast-close {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0 0 0 8px;
-  margin-top: -2px;
-}
-
-.toast-close:hover {
-  color: var(--text-primary);
-}
-</style>
