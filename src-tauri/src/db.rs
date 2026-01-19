@@ -1,7 +1,7 @@
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
-use anyhow::{Result, Context};
+use crate::error::{AppError, AppResult};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TokenStat {
@@ -12,16 +12,17 @@ pub struct TokenStat {
 
 /// Initialize the SQLite database.
 /// Creates the app data directory and the token_stats table if they don't exist.
-pub fn init_db(app_handle: &tauri::AppHandle) -> Result<Connection> {
+pub fn init_db(app_handle: &tauri::AppHandle) -> AppResult<Connection> {
     let app_dir = app_handle.path().app_data_dir()
-        .context("Failed to get app data directory")?;
+        .map_err(|e| AppError::Unknown(format!("Failed to get app data directory: {}", e)))?;
     
     if !app_dir.exists() {
-        std::fs::create_dir_all(&app_dir).context("Failed to create app data directory")?;
+        std::fs::create_dir_all(&app_dir)
+            .map_err(|e| AppError::Io(format!("Failed to create app data directory: {}", e)))?;
     }
 
     let db_path = app_dir.join("stats.db");
-    let conn = Connection::open(db_path).context("Failed to open database")?;
+    let conn = Connection::open(db_path)?; // Auto-converts to AppError::Database via From impl
     
     conn.execute(
         "CREATE TABLE IF NOT EXISTS token_stats (
@@ -32,28 +33,28 @@ pub fn init_db(app_handle: &tauri::AppHandle) -> Result<Connection> {
             model_name TEXT NOT NULL
         )",
         [],
-    ).context("Failed to create table")?;
+    )?; // Auto-converts
     
     Ok(conn)
 }
 
 /// Record token usage for a specific model on a specific date.
-pub fn record_tokens(conn: &Connection, date: &str, prompt: i64, completion: i64, model: &str) -> Result<()> {
+pub fn record_tokens(conn: &Connection, date: &str, prompt: i64, completion: i64, model: &str) -> AppResult<()> {
     conn.execute(
         "INSERT INTO token_stats (date, prompt_tokens, completion_tokens, model_name) VALUES (?1, ?2, ?3, ?4)",
         params![date, prompt, completion, model],
-    ).context("Failed to insert token stats")?;
+    )?;
     Ok(())
 }
 
 /// Retrieve aggregated token statistics grouped by date.
-pub fn get_aggregated_stats(conn: &Connection) -> Result<Vec<TokenStat>> {
+pub fn get_aggregated_stats(conn: &Connection) -> AppResult<Vec<TokenStat>> {
     let mut stmt = conn.prepare(
         "SELECT date, SUM(prompt_tokens), SUM(completion_tokens) 
          FROM token_stats 
          GROUP BY date 
          ORDER BY date ASC",
-    ).context("Failed to prepare query")?;
+    )?;
     
     let rows = stmt.query_map([], |row| {
         Ok(TokenStat {
@@ -61,18 +62,17 @@ pub fn get_aggregated_stats(conn: &Connection) -> Result<Vec<TokenStat>> {
             prompt_tokens: row.get(1)?,
             completion_tokens: row.get(2)?,
         })
-    }).context("Failed to execute query")?;
+    })?;
 
     let mut stats = Vec::new();
     for row in rows {
-        stats.push(row.context("Failed to read row")?);
+        stats.push(row?);
     }
-        Ok(stats)
-    }
-    
-    /// Delete all records from the token_stats table.
-    pub fn clear_database(conn: &Connection) -> Result<()> {
-        conn.execute("DELETE FROM token_stats", []).context("Failed to clear database")?;
-        Ok(())
-    }
-    
+    Ok(stats)
+}
+
+/// Delete all records from the token_stats table.
+pub fn clear_database(conn: &Connection) -> AppResult<()> {
+    conn.execute("DELETE FROM token_stats", [])?;
+    Ok(())
+}

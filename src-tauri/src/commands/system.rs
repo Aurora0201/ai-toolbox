@@ -1,3 +1,5 @@
+use crate::error::AppResult;
+
 #[derive(serde::Serialize, Clone, Default)]
 pub struct GpuInfo {
     pub name: String,
@@ -8,7 +10,7 @@ pub struct GpuInfo {
 /// Command to get GPU info (Name, Total VRAM, Used VRAM).
 /// Uses PowerShell on Windows for broad support (AMD/Intel/NVIDIA).
 #[tauri::command]
-pub async fn get_gpu_info() -> Result<GpuInfo, String> {
+pub async fn get_gpu_info() -> AppResult<GpuInfo> {
     #[allow(unused_mut)]
     let mut info = GpuInfo::default();
 
@@ -27,30 +29,32 @@ pub async fn get_gpu_info() -> Result<GpuInfo, String> {
             }
         "#;
         
-        let output = std::process::Command::new("powershell")
+        let output = tokio::process::Command::new("powershell")
             .args(["-NoProfile", "-Command", ps_cmd])
-            .output();
+            .output()
+            .await
+            .map_err(|e| AppError::Io(format!("Failed to execute PowerShell: {}", e)))?;
 
-        match output {
-            Ok(o) => {
-                if o.status.success() {
-                    let s = String::from_utf8_lossy(&o.stdout);
-                    if let Ok(v) = serde_json::from_str::<serde_json::Value>(&s) {
-                        if let Some(name) = v["Name"].as_str() {
-                            info.name = name.to_string();
-                        }
-                        if let Some(total) = v["Total"].as_u64() {
-                            info.total_mb = total / 1024 / 1024;
-                        }
-                        if let Some(used) = v["Used"].as_f64() {
-                            info.used_mb = (used as u64) / 1024 / 1024;
-                        } else if let Some(used) = v["Used"].as_u64() {
-                            info.used_mb = used / 1024 / 1024;
-                        }
-                    }
+        if output.status.success() {
+            let s = String::from_utf8_lossy(&output.stdout);
+            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&s) {
+                if let Some(name) = v["Name"].as_str() {
+                    info.name = name.to_string();
+                }
+                if let Some(total) = v["Total"].as_u64() {
+                    info.total_mb = total / 1024 / 1024;
+                }
+                if let Some(used) = v["Used"].as_f64() {
+                    info.used_mb = (used as u64) / 1024 / 1024;
+                } else if let Some(used) = v["Used"].as_u64() {
+                    info.used_mb = used / 1024 / 1024;
                 }
             }
-            Err(e) => println!("Failed to execute PowerShell: {}", e),
+        } else {
+             // Optionally log stderr or return error. 
+             // Current logic seems to prefer returning default info if PS fails to output valid JSON or finds nothing.
+             // But if command failed (non-zero exit), maybe we should warn?
+             // For now, adhering to original behavior of returning defaults, but proper IO errors are propagated.
         }
     }
 

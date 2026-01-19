@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use reqwest::Client;
-use anyhow::{Result, Context};
 use futures_util::StreamExt;
 use std::sync::Mutex;
+use crate::error::AppResult;
 
 /// Represents a model installed in Ollama.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -71,50 +71,44 @@ impl OllamaClient {
     }
 
     /// Fetch the list of installed models.
-    pub async fn get_tags(&self) -> Result<Vec<Model>> {
+    pub async fn get_tags(&self) -> AppResult<Vec<Model>> {
         let url = format!("{}/api/tags", self.get_base_url());
-        let resp = self.client.get(url).send().await
-            .context("Failed to send get_tags request")?;
-        let tags: TagsResponse = resp.json().await
-            .context("Failed to parse tags response")?;
+        let resp = self.client.get(url).send().await?;
+        let tags: TagsResponse = resp.json().await?;
         Ok(tags.models)
     }
 
     /// Fetch the list of currently running models.
-    pub async fn get_running_models(&self) -> Result<Vec<RunningModel>> {
+    pub async fn get_running_models(&self) -> AppResult<Vec<RunningModel>> {
         let url = format!("{}/api/ps", self.get_base_url());
-        let resp = self.client.get(url).send().await
-            .context("Failed to send get_running_models request")?;
-        let ps: ProcessResponse = resp.json().await
-            .context("Failed to parse ps response")?;
+        let resp = self.client.get(url).send().await?;
+        let ps: ProcessResponse = resp.json().await?;
         Ok(ps.models)
     }
 
     /// Delete an installed model.
-    pub async fn delete_model(&self, name: String) -> Result<()> {
+    pub async fn delete_model(&self, name: String) -> AppResult<()> {
         let url = format!("{}/api/delete", self.get_base_url());
         self.client.delete(url)
             .json(&serde_json::json!({ "name": name }))
-            .send().await
-            .context("Failed to send delete_model request")?;
+            .send().await?;
         Ok(())
     }
 
     /// Unload a model from memory (VRAM) by setting its keep_alive to 0.
-    pub async fn unload_model(&self, name: String) -> Result<()> {
+    pub async fn unload_model(&self, name: String) -> AppResult<()> {
         let url = format!("{}/api/generate", self.get_base_url());
         self.client.post(url)
             .json(&serde_json::json!({
                 "model": name,
                 "keep_alive": 0
             }))
-            .send().await
-            .context("Failed to send unload_model request")?;
+            .send().await?;
         Ok(())
     }
     
     /// Pull (download) a new model from the Ollama library with progress reporting.
-    pub async fn pull_model<F, Fut>(&self, name: String, on_progress: F) -> Result<()> 
+    pub async fn pull_model<F, Fut>(&self, name: String, on_progress: F) -> AppResult<()> 
     where 
         F: Fn(PullProgress) -> Fut,
         Fut: std::future::Future<Output = ()>,
@@ -122,12 +116,11 @@ impl OllamaClient {
         let url = format!("{}/api/pull", self.get_base_url());
         let resp = self.client.post(url)
             .json(&serde_json::json!({ "name": name, "stream": true }))
-            .send().await
-            .context("Failed to send pull_model request")?;
+            .send().await?;
 
         let mut stream = resp.bytes_stream();
         while let Some(item) = stream.next().await {
-            let chunk = item.context("Error while reading pull stream")?;
+            let chunk = item?;
             // A chunk might contain multiple JSON objects separated by newlines
             let cursor = std::io::Cursor::new(chunk);
             let deserializer = serde_json::Deserializer::from_reader(cursor);
@@ -141,15 +134,14 @@ impl OllamaClient {
     }
 
     /// Start (preload) a model by sending an empty generate request.
-    pub async fn start_model(&self, name: String) -> Result<()> {
+    pub async fn start_model(&self, name: String) -> AppResult<()> {
         let url = format!("{}/api/generate", self.get_base_url());
         self.client.post(url)
             .json(&serde_json::json!({
                 "model": name,
                 "keep_alive": -1 // Keep loaded indefinitely
             }))
-            .send().await
-            .context("Failed to send start_model request")?;
+            .send().await?;
         Ok(())
     }
 }
