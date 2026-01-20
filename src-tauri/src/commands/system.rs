@@ -104,8 +104,6 @@ pub async fn get_gpu_info() -> AppResult<GpuInfo> {
                     info.used_mb = used / 1024 / 1024;
                 }
             }
-        } else {
-
         }
     }
 
