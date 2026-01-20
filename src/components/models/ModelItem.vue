@@ -27,15 +27,15 @@
         @click="$emit('start', model.name)"
       >
         <template v-if="loadingState === 'starting'">
-          <Loader2 class="w-3 h-3 animate-spin" /> {{ t.starting }}
+          <Loader2 class="w-3 h-3 animate-spin" /> {{ $t('models.starting') }}
         </template>
         <template v-else-if="isRunning">
           <Check class="w-3 h-3" />
-          {{ t.running }}
+          {{ $t('models.running') }}
         </template>
         <template v-else>
           <Play class="w-3 h-3 fill-current" />
-          {{ t.start }}
+          {{ $t('models.start') }}
         </template>
       </button>
       
@@ -53,15 +53,13 @@
           v-else
           class="w-3 h-3"
         />
-        {{ loadingState === 'deleting' ? '...' : t.delete }}
+        {{ loadingState === 'deleting' ? '...' : $t('models.delete') }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useSettingsStore } from '../../store/settings'
 import { Box, Play, Check, Trash2, Loader2 } from 'lucide-vue-next'
 
 /**
@@ -81,25 +79,6 @@ defineProps({
     default: null
   }
 })
-
-const settings = useSettingsStore()
-
-const translations = {
-  en: {
-    starting: 'Starting...',
-    running: 'Running',
-    start: 'Start',
-    delete: 'Delete'
-  },
-  zh: {
-    starting: '启动中...',
-    running: '运行中',
-    start: '启动',
-    delete: '删除'
-  }
-}
-
-const t = computed(() => translations[settings.language] || translations.en)
 
 defineEmits(['start', 'delete'])
 

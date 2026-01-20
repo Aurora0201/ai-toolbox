@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { invoke } from '@tauri-apps/api/core'
+import i18n from '../i18n'
 
 /**
  * Pinia store for managing application settings.
@@ -73,6 +74,7 @@ export const useSettingsStore = defineStore('settings', {
      */
     applyLanguage(lang) {
       document.documentElement.setAttribute('lang', lang)
+      i18n.global.locale.value = lang
     },
 
     /**

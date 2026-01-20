@@ -2,7 +2,7 @@
   <div class="bg-background-surface border border-border rounded-lg shadow-sm">
     <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm flex justify-between items-center text-text-main">
       <span class="flex items-center gap-2">
-        <Rocket class="w-4 h-4" /> {{ t.title }}
+        <Rocket class="w-4 h-4" /> {{ $t('models.processesTitle') }}
       </span>
       
       <!-- GPU Info Section -->
@@ -33,7 +33,7 @@
       <span
         v-else
         class="text-success text-mono text-xs"
-      >{{ t.active }}</span>
+      >{{ $t('models.active') }}</span>
     </div>
     
     <div class="p-4">
@@ -45,7 +45,7 @@
         <div class="text-2xl mb-2">
           😴
         </div>
-        {{ t.noModels }}
+        {{ $t('models.noModels') }}
       </div>
       
       <!-- Running Models List -->
@@ -68,7 +68,7 @@
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <span class="w-2 h-2 bg-success rounded-full animate-pulse shadow-[0_0_0_2px_rgba(16,185,129,0.2)]" />
-              <span class="text-xs font-medium text-success">{{ t.active }}</span>
+              <span class="text-xs font-medium text-success">{{ $t('models.active') }}</span>
             </div>
           </div>
 
@@ -80,11 +80,11 @@
               @click="$emit('stop', model.name)"
             >
               <template v-if="loadingStates[model.name] === 'stopping'">
-                <Loader2 class="w-3 h-3 animate-spin" /> {{ t.stopping }}
+                <Loader2 class="w-3 h-3 animate-spin" /> {{ $t('models.stopping') }}
               </template>
               <template v-else>
                 <Square class="w-3 h-3 fill-current" />
-                {{ t.stop }}
+                {{ $t('models.stop') }}
               </template>
             </button>
           </div>
@@ -95,8 +95,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useSettingsStore } from '../../store/settings'
 import { Rocket, Box, Square, Loader2 } from 'lucide-vue-next'
 
 /**
@@ -116,29 +114,6 @@ defineProps({
     default: () => ({})
   }
 })
-
-const settings = useSettingsStore()
-
-const translations = {
-  en: {
-    title: 'Running Processes',
-    active: 'Active',
-    noModels: 'No models currently running.',
-    vram: 'VRAM',
-    stop: 'Stop',
-    stopping: 'Stopping...'
-  },
-  zh: {
-    title: '运行中的进程',
-    active: '活跃',
-    noModels: '当前没有正在运行的模型。',
-    vram: '显存占用',
-    stop: '停止',
-    stopping: '停止中...'
-  }
-}
-
-const t = computed(() => translations[settings.language] || translations.en)
 
 defineEmits(['stop'])
 

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
+import i18n from '../i18n'
 
 /**
  * Pinia store for managing Ollama models, running processes, and system resource info.
@@ -77,7 +78,7 @@ export const useModelStore = defineStore('models', {
      * @param {string} name - The name of the model to pull (e.g., "llama3").
      */
     async pullModel(name) {
-      this.pullProgress = { status: 'Initializing...', completed: 0, total: 0, percentage: 0 }
+      this.pullProgress = { status: i18n.global.t('common.loading'), completed: 0, total: 0, percentage: 0 }
       try {
         await invoke('pull_model', { name })
         await this.fetchModels()

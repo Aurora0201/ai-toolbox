@@ -10,7 +10,7 @@
         active-class="bg-primary text-white shadow-sm hover:bg-primary hover:text-white"
       >
         <Home class="w-[18px] h-[18px]" />
-        Home
+        {{ $t('common.home') }}
       </router-link>
       <router-link
         to="/chat"
@@ -18,7 +18,7 @@
         active-class="bg-primary text-white shadow-sm hover:bg-primary hover:text-white"
       >
         <MessageSquare class="w-[18px] h-[18px]" />
-        Chat
+        {{ $t('common.chat') }}
       </router-link>
       <router-link
         to="/dashboard"
@@ -26,7 +26,7 @@
         active-class="bg-primary text-white shadow-sm hover:bg-primary hover:text-white"
       >
         <LayoutDashboard class="w-[18px] h-[18px]" />
-        Dashboard
+        {{ $t('common.dashboard') }}
       </router-link>
       <router-link
         to="/models"
@@ -34,7 +34,7 @@
         active-class="bg-primary text-white shadow-sm hover:bg-primary hover:text-white"
       >
         <Box class="w-[18px] h-[18px]" />
-        Models
+        {{ $t('common.models') }}
       </router-link>
       <router-link
         to="/settings"
@@ -42,7 +42,7 @@
         active-class="bg-primary text-white shadow-sm hover:bg-primary hover:text-white"
       >
         <Settings class="w-[18px] h-[18px]" />
-        Settings
+        {{ $t('common.settings') }}
       </router-link>
     </nav>
   </aside>
