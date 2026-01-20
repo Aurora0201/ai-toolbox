@@ -2,6 +2,7 @@ use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use crate::error::{AppError, AppResult};
+use log::info;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TokenStat {
@@ -22,7 +23,7 @@ pub fn init_db(app_handle: &tauri::AppHandle) -> AppResult<Connection> {
     }
 
     let db_path = app_dir.join("stats.db");
-    let conn = Connection::open(db_path)?; // Auto-converts to AppError::Database via From impl
+    let conn = Connection::open(&db_path)?; // Auto-converts to AppError::Database via From impl
     
     conn.execute(
         "CREATE TABLE IF NOT EXISTS token_stats (
@@ -34,6 +35,8 @@ pub fn init_db(app_handle: &tauri::AppHandle) -> AppResult<Connection> {
         )",
         [],
     )?; // Auto-converts
+    
+    info!("Database initialized at {:?}", db_path);
     
     Ok(conn)
 }

@@ -45,8 +45,14 @@
         :disabled="!!loadingState"
         @click="$emit('delete', model.name)"
       >
-        <Loader2 v-if="loadingState === 'deleting'" class="w-3 h-3 animate-spin" />
-        <Trash2 v-else class="w-3 h-3" />
+        <Loader2
+          v-if="loadingState === 'deleting'"
+          class="w-3 h-3 animate-spin"
+        />
+        <Trash2
+          v-else
+          class="w-3 h-3"
+        />
         {{ loadingState === 'deleting' ? '...' : t.delete }}
       </button>
     </div>

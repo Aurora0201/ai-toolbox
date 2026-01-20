@@ -1,7 +1,9 @@
 <template>
   <div class="p-8 max-w-[1000px] mx-auto">
     <div class="mb-8">
-      <h1 class="text-2xl font-bold text-text-main">{{ t.title }}</h1>
+      <h1 class="text-2xl font-bold text-text-main">
+        {{ t.title }}
+      </h1>
       <p class="text-text-sub mt-1">
         {{ t.subtitle }}
       </p>

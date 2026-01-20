@@ -10,15 +10,17 @@ export const useSettingsStore = defineStore('settings', {
     theme: 'system', // 'light', 'dark', 'system'
     language: 'zh', // 'en', 'zh'
     ollamaEndpoint: 'http://127.0.0.1:11434',
+    logLevel: 'info', // 'debug', 'info', 'warn', 'error'
   }),
 
   actions: {
     /**
-     * Initializes the application settings (theme and language).
+     * Initializes the application settings (theme, language, log level).
      */
     init() {
       this.applyTheme(this.theme)
       this.applyLanguage(this.language)
+      this.setLogLevel(this.logLevel)
     },
 
     /**
@@ -28,6 +30,19 @@ export const useSettingsStore = defineStore('settings', {
     setTheme(theme) {
       this.theme = theme
       this.applyTheme(theme)
+    },
+
+    /**
+     * Updates the log level and notifies the backend.
+     * @param {string} level - The log level ('debug', 'info', 'warn', 'error').
+     */
+    async setLogLevel(level) {
+      this.logLevel = level
+      try {
+        await invoke('set_log_level', { level })
+      } catch (error) {
+        console.error('Failed to set log level:', error)
+      }
     },
 
     /**

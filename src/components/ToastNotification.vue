@@ -10,10 +10,22 @@
     role="alert"
   >
     <div class="mr-3 text-base flex items-center pt-0.5">
-      <CheckCircle v-if="type === 'success'" class="w-4 h-4 text-success" />
-      <AlertCircle v-else-if="type === 'error'" class="w-4 h-4 text-danger" />
-      <AlertTriangle v-else-if="type === 'warning'" class="w-4 h-4 text-warning" />
-      <Info v-else class="w-4 h-4 text-primary" />
+      <CheckCircle
+        v-if="type === 'success'"
+        class="w-4 h-4 text-success"
+      />
+      <AlertCircle
+        v-else-if="type === 'error'"
+        class="w-4 h-4 text-danger"
+      />
+      <AlertTriangle
+        v-else-if="type === 'warning'"
+        class="w-4 h-4 text-warning"
+      />
+      <Info
+        v-else
+        class="w-4 h-4 text-primary"
+      />
     </div>
     <div class="flex-1 text-sm text-text-main leading-snug">
       {{ message }}

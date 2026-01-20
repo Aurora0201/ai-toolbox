@@ -1,7 +1,9 @@
 <template>
   <div class="p-8 max-w-[900px] mx-auto">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-text-main">{{ t.title }}</h1>
+      <h1 class="text-2xl font-bold text-text-main">
+        {{ t.title }}
+      </h1>
       <p class="text-text-sub mt-1">
         {{ t.subtitle }}
       </p>
@@ -61,6 +63,63 @@
               English
             </option>
           </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log Settings -->
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
+      <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
+        <span>{{ t.logSettings }}</span>
+      </div>
+      <div class="p-6 space-y-6">
+        <!-- Log Level -->
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-text-main">
+              {{ t.logLevel }}
+            </div>
+            <div class="text-sm text-text-sub">
+              {{ t.logLevelDesc }}
+            </div>
+          </div>
+          <select 
+            :value="settings.logLevel" 
+            class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+            @change="handleLogLevelChange"
+          >
+            <option value="debug">
+              Debug
+            </option>
+            <option value="info">
+              Info
+            </option>
+            <option value="warn">
+              Warn
+            </option>
+            <option value="error">
+              Error
+            </option>
+          </select>
+        </div>
+
+        <!-- Open Log Directory -->
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-text-main">
+              {{ t.openLogDir }}
+            </div>
+            <div class="text-sm text-text-sub">
+              {{ t.openLogDirDesc }}
+            </div>
+          </div>
+          <button 
+            class="px-4 py-2 rounded-md font-medium text-sm transition-colors border border-border text-text-main hover:bg-background-element flex items-center gap-2"
+            @click="openLogs"
+          >
+            <FolderOpen class="w-4 h-4" />
+            {{ t.openBtn }}
+          </button>
         </div>
       </div>
     </div>
@@ -188,7 +247,7 @@ import { useToast } from '../composables/useToast'
 import { useConfirm } from '../composables/useConfirm'
 import { invoke } from '@tauri-apps/api/core'
 import packageJson from '../../package.json'
-import { Loader2, Github } from 'lucide-vue-next'
+import { Loader2, Github, FolderOpen } from 'lucide-vue-next'
 
 const settings = useSettingsStore()
 const { addToast } = useToast()
@@ -208,6 +267,12 @@ const translations = {
     themeDesc: 'Switch between light and dark themes.',
     language: 'Language',
     languageDesc: 'Select your preferred interface language.',
+    logSettings: 'Log Settings',
+    logLevel: 'Log Level',
+    logLevelDesc: 'Set the verbosity of application logs (Retained for 7 days).',
+    openLogDir: 'Open Log Directory',
+    openLogDirDesc: 'Open the folder containing application logs.',
+    openBtn: 'Open Folder',
     aiConnection: 'AI Connection',
     ollamaEndpoint: 'Ollama Endpoint',
     checkConnection: 'Check Connection',
@@ -239,6 +304,12 @@ const translations = {
     themeDesc: '在浅色和深色主题之间切换。',
     language: '语言',
     languageDesc: '选择您偏好的界面语言。',
+    logSettings: '日志设置',
+    logLevel: '日志等级',
+    logLevelDesc: '设置应用程序日志的详细程度（保留 7 天）。',
+    openLogDir: '打开日志目录',
+    openLogDirDesc: '打开包含应用程序日志的文件夹。',
+    openBtn: '打开文件夹',
     aiConnection: 'AI 连接',
     ollamaEndpoint: 'Ollama 服务地址',
     checkConnection: '检查连接',
@@ -285,6 +356,25 @@ watch(() => tempEndpoint.value, () => {
  */
 const handleThemeChange = (event) => {
   settings.setTheme(event.target.value)
+}
+
+/**
+ * Handles log level changes from the dropdown and updates the store.
+ * @param {Event} event - The change event from the select element.
+ */
+const handleLogLevelChange = (event) => {
+  settings.setLogLevel(event.target.value)
+}
+
+/**
+ * Opens the application log directory.
+ */
+const openLogs = async () => {
+  try {
+    await invoke('open_log_dir')
+  } catch (error) {
+    addToast({ message: `Failed to open log directory: ${error}`, type: 'error' })
+  }
 }
 
 /**
