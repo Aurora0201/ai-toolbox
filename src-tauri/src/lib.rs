@@ -72,7 +72,9 @@ pub fn run() {
             commands::db::get_token_stats,
             commands::db::record_tokens,
             commands::db::clear_all_data,
-            commands::system::get_gpu_info
+            commands::system::get_gpu_info,
+            commands::system::set_log_level,
+            commands::system::open_log_dir
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
