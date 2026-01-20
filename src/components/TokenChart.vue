@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-background-surface border border-border rounded-lg shadow-sm mt-6">
+  <div class="bg-background-surface border border-border rounded-lg shadow-sm mt-6 overflow-hidden">
     <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm flex justify-between items-center text-text-main">
       <span>{{ $t('dashboard.chartTitle') }}</span>
       <div class="flex items-center text-xs text-text-sub">

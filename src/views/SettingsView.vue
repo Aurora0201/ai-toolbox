@@ -10,7 +10,7 @@
     </div>
 
     <!-- General Settings -->
-    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6 overflow-hidden">
       <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
         <span>{{ $t('settings.general') }}</span>
       </div>
@@ -69,7 +69,7 @@
     </div>
 
     <!-- Log Settings -->
-    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6 overflow-hidden">
       <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
         <span>{{ $t('settings.logSettings') }}</span>
       </div>
@@ -126,7 +126,7 @@
     </div>
 
     <!-- AI Connection -->
-    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6 overflow-hidden">
       <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
         <span>{{ $t('settings.aiConnection') }}</span>
       </div>
@@ -185,7 +185,7 @@
     </div>
 
     <!-- Application Data -->
-    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6 overflow-hidden">
       <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
         <span>{{ $t('settings.appData') }}</span>
       </div>
@@ -210,7 +210,7 @@
     </div>
 
     <!-- About -->
-    <div class="bg-background-surface border border-border rounded-lg shadow-sm">
+    <div class="bg-background-surface border border-border rounded-lg shadow-sm overflow-hidden">
       <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm text-text-main">
         <span>{{ $t('settings.about') }}</span>
       </div>
