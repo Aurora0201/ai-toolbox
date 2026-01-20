@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-background-surface border border-border rounded-lg shadow-sm">
+  <div class="bg-background-surface border border-border rounded-lg shadow-sm overflow-hidden">
     <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm flex justify-between items-center text-text-main">
       <span class="flex items-center gap-2">
         <Rocket class="w-4 h-4" /> {{ $t('models.processesTitle') }}

@@ -10,7 +10,7 @@
       class="fixed top-0 left-0 w-screen h-screen bg-black/50 flex items-center justify-center z-[9999]"
       @click.self="cancel"
     >
-      <div class="w-full max-w-[400px] bg-background-surface border border-border rounded-lg shadow-md animate-[slide-up_0.2s_ease-out]">
+      <div class="w-full max-w-[400px] bg-background-surface border border-border rounded-lg shadow-md animate-[slide-up_0.2s_ease-out] overflow-hidden">
         <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm flex justify-between items-center text-text-main">
           <span>{{ title }}</span>
           <button
