@@ -1,10 +1,10 @@
 <template>
   <div class="bg-background-surface border border-border rounded-lg shadow-sm mt-6">
     <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm flex justify-between items-center text-text-main">
-      <span>{{ t.title }}</span>
+      <span>{{ $t('dashboard.chartTitle') }}</span>
       <div class="flex items-center text-xs text-text-sub">
-        <span class="w-2 h-2 rounded-full mr-1 inline-block bg-primary" /> {{ t.input }}
-        <span class="w-2 h-2 rounded-full mr-1 inline-block bg-success ml-3" /> {{ t.output }}
+        <span class="w-2 h-2 rounded-full mr-1 inline-block bg-primary" /> {{ $t('dashboard.input') }}
+        <span class="w-2 h-2 rounded-full mr-1 inline-block bg-success ml-3" /> {{ $t('dashboard.output') }}
       </div>
     </div>
     <div class="p-4">
@@ -17,32 +17,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import * as echarts from 'echarts'
 import { invoke } from '@tauri-apps/api/core'
-import { useSettingsStore } from '../store/settings'
+import { useI18n } from 'vue-i18n'
 
 /**
  * TokenChart component visualizes input and output token usage over time using ECharts.
  */
 const chartRef = ref(null)
-const settings = useSettingsStore()
+const { t, locale } = useI18n()
 let chart = null
-
-const translations = {
-  en: {
-    title: 'Token Usage Trend',
-    input: 'Input',
-    output: 'Output'
-  },
-  zh: {
-    title: 'Token 使用趋势',
-    input: '提示词 (Input)',
-    output: '生成词 (Output)'
-  }
-}
-
-const t = computed(() => translations[settings.language] || translations.en)
 
 /**
  * Fetches token statistics from the backend and updates the chart.
@@ -85,7 +70,7 @@ const updateChart = async () => {
       },
       series: [
         {
-          name: t.value.input,
+          name: t('dashboard.input'),
           type: 'line',
           data: promptTokens,
           smooth: true,
@@ -95,7 +80,7 @@ const updateChart = async () => {
           lineStyle: { width: 2 }
         },
         {
-          name: t.value.output,
+          name: t('dashboard.output'),
           type: 'line',
           data: completionTokens,
           smooth: true,
@@ -112,7 +97,7 @@ const updateChart = async () => {
   }
 }
 
-watch(() => settings.language, () => {
+watch(locale, () => {
   updateChart()
 })
 

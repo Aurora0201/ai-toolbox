@@ -27,7 +27,7 @@
             <div class="mb-1">
               <span
                 class="text-[10px] font-bold text-text-sub uppercase font-mono"
-              >{{ msg.role === 'user' ? t.you : t.ai }}</span>
+              >{{ msg.role === 'user' ? $t('chat.you') : $t('chat.ai') }}</span>
             </div>
             <div 
               class="p-3 border rounded-lg shadow-sm"
@@ -58,11 +58,11 @@
           </div>
           <div class="flex flex-col">
             <div class="mb-1">
-              <span class="text-[10px] font-bold text-text-sub uppercase font-mono">{{ t.ai }}</span>
+              <span class="text-[10px] font-bold text-text-sub uppercase font-mono">{{ $t('chat.ai') }}</span>
             </div>
             <div class="p-3 bg-background-surface border border-border rounded-lg shadow-sm rounded-tl-none">
               <div class="text-muted flex items-center gap-2 text-sm">
-                <Loader2 class="w-4 h-4 animate-spin" /> {{ t.thinking }}
+                <Loader2 class="w-4 h-4 animate-spin" /> {{ $t('chat.thinking') }}
               </div>
             </div>
           </div>
@@ -81,7 +81,7 @@
             disabled
             value=""
           >
-            {{ t.selectModel }}
+            {{ $t('chat.selectModel') }}
           </option>
           <option
             v-for="model in store.models"
@@ -96,7 +96,7 @@
         <div class="relative flex items-end">
           <textarea 
             v-model="input" 
-            :placeholder="t.placeholder" 
+            :placeholder="$t('chat.placeholder')" 
             :disabled="loading"
             rows="3"
             class="w-full border-none bg-transparent resize-none p-0 pr-10 focus:ring-0 text-sm outline-none text-text-main placeholder:text-text-sub"
@@ -124,34 +124,15 @@ import { useModelStore } from '../store/models'
 import { useSettingsStore } from '../store/settings'
 import { invoke } from '@tauri-apps/api/core'
 import { Bot, User, SendHorizontal, Loader2 } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
 const store = useModelStore()
 const settings = useSettingsStore()
+const { t } = useI18n()
 const input = ref('')
 const messages = ref([])
 const loading = ref(false)
 const messagesRef = ref(null)
-
-const translations = {
-  en: {
-    you: 'YOU',
-    ai: 'AI',
-    thinking: 'Thinking...',
-    selectModel: 'Select Model',
-    placeholder: 'Type your message here...',
-    errorMessage: 'Error: '
-  },
-  zh: {
-    you: '您',
-    ai: 'AI',
-    thinking: '正在思考...',
-    selectModel: '选择模型',
-    placeholder: '输入消息...',
-    errorMessage: '错误: '
-  }
-}
-
-const t = computed(() => translations[settings.language] || translations.en)
 
 /**
  * Sends a message to the selected Ollama model.
@@ -192,7 +173,7 @@ const sendMessage = async () => {
     })
     
   } catch (error) {
-    messages.value.push({ role: 'assistant', content: t.value.errorMessage + error })
+    messages.value.push({ role: 'assistant', content: t('chat.errorMessage') + error })
   } finally {
     loading.value = false
     await scrollToBottom()
@@ -216,4 +197,3 @@ onMounted(async () => {
   }
 })
 </script>
-

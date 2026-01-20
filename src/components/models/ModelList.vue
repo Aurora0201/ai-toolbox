@@ -2,16 +2,16 @@
   <div class="bg-background-surface border border-border rounded-lg shadow-sm mb-6">
     <div class="px-4 py-3 border-b border-border bg-background-element font-semibold text-sm flex justify-between items-center text-text-main">
       <span class="flex items-center gap-2">
-        <Box class="w-4 h-4" /> {{ t.title }}
+        <Box class="w-4 h-4" /> {{ $t('models.listTitle') }}
       </span>
-      <span class="text-text-sub font-mono text-xs">{{ models.length }} {{ t.items }}</span>
+      <span class="text-text-sub font-mono text-xs">{{ models.length }} {{ $t('models.items') }}</span>
     </div>
     <div class="p-4">
       <!-- Pull Model Input -->
       <div class="flex gap-2 mb-4">
         <input 
           v-model="newModelName" 
-          :placeholder="t.placeholder" 
+          :placeholder="$t('models.pullPlaceholder')" 
           class="flex-1 w-full p-2.5 rounded-md border border-border bg-background-surface text-text-main text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
           @keyup.enter="handlePull"
         >
@@ -21,7 +21,7 @@
           @click="handlePull"
         >
           <Download class="w-4 h-4" />
-          {{ pulling ? t.pulling : t.pull }}
+          {{ pulling ? $t('models.pulling') : $t('models.pull') }}
         </button>
       </div>
 
@@ -48,7 +48,7 @@
         class="text-center p-4 text-text-sub flex flex-col items-center gap-2"
       >
         <Loader2 class="w-6 h-6 text-primary animate-spin" />
-        {{ t.loading }}
+        {{ $t('models.loading') }}
       </div>
       <div
         v-else
@@ -69,8 +69,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useSettingsStore } from '../../store/settings'
+import { ref } from 'vue'
 import ModelItem from './ModelItem.vue'
 import { Box, Download, Loader2 } from 'lucide-vue-next'
 
@@ -103,29 +102,6 @@ const props = defineProps({
     default: () => ({})
   }
 })
-
-const settings = useSettingsStore()
-
-const translations = {
-  en: {
-    title: 'Installed Models',
-    items: 'items',
-    placeholder: 'Pull model (e.g. llama3)',
-    pull: 'Pull',
-    pulling: 'Pulling...',
-    loading: 'Loading library...'
-  },
-  zh: {
-    title: '已安装模型',
-    items: '个项目',
-    placeholder: '拉取模型 (例如 llama3)',
-    pull: '拉取',
-    pulling: '拉取中...',
-    loading: '正在加载模型库...'
-  }
-}
-
-const t = computed(() => translations[settings.language] || translations.en)
 
 const emit = defineEmits(['pull', 'start', 'delete'])
 
