@@ -1,7 +1,9 @@
 <template>
   <div class="p-8 max-w-[900px] mx-auto">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-text-main">{{ t.title }}</h1>
+      <h1 class="text-2xl font-bold text-text-main">
+        {{ t.title }}
+      </h1>
       <p class="text-text-sub mt-1">
         {{ t.subtitle }}
       </p>
@@ -86,10 +88,18 @@
             class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             @change="handleLogLevelChange"
           >
-            <option value="debug">Debug</option>
-            <option value="info">Info</option>
-            <option value="warn">Warn</option>
-            <option value="error">Error</option>
+            <option value="debug">
+              Debug
+            </option>
+            <option value="info">
+              Info
+            </option>
+            <option value="warn">
+              Warn
+            </option>
+            <option value="error">
+              Error
+            </option>
           </select>
         </div>
 
@@ -259,7 +269,7 @@ const translations = {
     languageDesc: 'Select your preferred interface language.',
     logSettings: 'Log Settings',
     logLevel: 'Log Level',
-    logLevelDesc: 'Set the verbosity of application logs.',
+    logLevelDesc: 'Set the verbosity of application logs (Retained for 7 days).',
     openLogDir: 'Open Log Directory',
     openLogDirDesc: 'Open the folder containing application logs.',
     openBtn: 'Open Folder',
@@ -296,7 +306,7 @@ const translations = {
     languageDesc: '选择您偏好的界面语言。',
     logSettings: '日志设置',
     logLevel: '日志等级',
-    logLevelDesc: '设置应用程序日志的详细程度。',
+    logLevelDesc: '设置应用程序日志的详细程度（保留 7 天）。',
     openLogDir: '打开日志目录',
     openLogDirDesc: '打开包含应用程序日志的文件夹。',
     openBtn: '打开文件夹',

@@ -9,7 +9,10 @@
         :key="index"
         class="mb-6"
       >
-        <div class="flex gap-3 max-w-[85%]" :class="msg.role === 'user' ? 'ml-auto justify-end' : ''">
+        <div
+          class="flex gap-3 max-w-[85%]"
+          :class="msg.role === 'user' ? 'ml-auto justify-end' : ''"
+        >
           <div
             v-if="msg.role === 'assistant'"
             class="w-9 h-9 bg-background-surface border border-border rounded-full flex items-center justify-center shrink-0 shadow-sm"
@@ -17,7 +20,10 @@
             <Bot class="w-5 h-5 text-primary" />
           </div>
           
-          <div class="flex flex-col" :class="msg.role === 'user' ? 'items-end' : ''">
+          <div
+            class="flex flex-col"
+            :class="msg.role === 'user' ? 'items-end' : ''"
+          >
             <div class="mb-1">
               <span
                 class="text-[10px] font-bold text-text-sub uppercase font-mono"
