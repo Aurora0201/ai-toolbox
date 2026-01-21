@@ -122,6 +122,7 @@ pub fn run() {
             commands::ollama::pull_model,
             commands::ollama::start_model,
             commands::ollama::unload_model,
+            commands::ollama::generate_completion,
             commands::ollama::update_ollama_config,
             commands::ollama::check_connection,
             commands::db::get_token_stats,

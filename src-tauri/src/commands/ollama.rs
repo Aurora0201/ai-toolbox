@@ -1,6 +1,6 @@
 use tauri::{State, Window, Emitter};
 use crate::AppState;
-use crate::ollama::{Model, RunningModel};
+use crate::ollama::{Model, RunningModel, GenerateRequest};
 use crate::error::AppResult;
 use log::{info, debug};
 
@@ -56,6 +56,23 @@ pub async fn start_model(state: State<'_, AppState>, name: String) -> AppResult<
 pub async fn unload_model(state: State<'_, AppState>, name: String) -> AppResult<()> {
     info!("Unloading model: {}", name);
     state.ollama.unload_model(name).await
+}
+
+/// Command to generate a response from a model (Chat).
+#[tauri::command]
+pub async fn generate_completion(
+    state: State<'_, AppState>,
+    window: Window,
+    request: GenerateRequest,
+) -> AppResult<()> {
+    info!("Generating completion for model: {}", request.model);
+    state.ollama.generate_completion(request, |response| {
+        let window_clone = window.clone();
+        async move {
+            let _ = window_clone.emit("chat-response", response);
+        }
+    }).await?;
+    Ok(())
 }
 
 /// Command to update the Ollama API endpoint.
