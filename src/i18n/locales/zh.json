@@ -47,7 +47,8 @@
     "stopped": "已停止生成",
     "confirmClearTitle": "清空聊天记录？",
     "confirmClearMsg": "当前会话的所有消息都将被永久删除。",
-    "confirmClearBtn": "清空全部"
+    "confirmClearBtn": "清空全部",
+    "noRunningModels": "未发现运行中的模型"
   },
   "dashboard": {
     "title": "用量分析",

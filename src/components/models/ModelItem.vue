@@ -23,7 +23,7 @@
       <button 
         class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
         :class="isRunning ? 'bg-success text-white' : 'bg-primary text-white hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed'" 
-        :disabled="isRunning || loadingState === 'starting'"
+        :disabled="isRunning || !!loadingState"
         @click="$emit('start', model.name)"
       >
         <template v-if="loadingState === 'starting'">

@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useModelStore } from '../store/models'
 import { useToast } from '../composables/useToast'
 import { useConfirm } from '../composables/useConfirm'
@@ -67,14 +67,16 @@ const pullModel = async (name) => {
  */
 const startModel = async (name) => {
   if (loadingStates.value[name]) return
-  loadingStates.value[name] = 'starting'
+  loadingStates.value = { ...loadingStates.value, [name]: 'starting' }
   try {
     await store.startModel(name)
     addToast({ message: t('models.started', { name }), type: 'success' })
   } catch (error) {
     addToast({ message: t('models.startFailed') + error, type: 'error' })
   } finally {
-    loadingStates.value[name] = null
+    const nextStates = { ...loadingStates.value }
+    delete nextStates[name]
+    loadingStates.value = nextStates
   }
 }
 
@@ -84,14 +86,16 @@ const startModel = async (name) => {
  */
 const stopModel = async (name) => {
   if (loadingStates.value[name]) return
-  loadingStates.value[name] = 'stopping'
+  loadingStates.value = { ...loadingStates.value, [name]: 'stopping' }
   try {
     await store.unloadModel(name)
     addToast({ message: t('models.stopped', { name }), type: 'success' })
   } catch (error) {
     addToast({ message: t('models.stopFailed') + error, type: 'error' })
   } finally {
-    loadingStates.value[name] = null
+    const nextStates = { ...loadingStates.value }
+    delete nextStates[name]
+    loadingStates.value = nextStates
   }
 }
 
@@ -110,31 +114,27 @@ const deleteModel = async (name) => {
   if (!confirmed) return
   
   if (loadingStates.value[name]) return
-  loadingStates.value[name] = 'deleting'
+  loadingStates.value = { ...loadingStates.value, [name]: 'deleting' }
   try {
     await store.deleteModel(name)
     addToast({ message: t('models.deleted', { name }), type: 'success' })
   } catch (error) {
     addToast({ message: t('models.deleteFailed') + error, type: 'error' })
   } finally {
-    loadingStates.value[name] = null
+    const nextStates = { ...loadingStates.value }
+    delete nextStates[name]
+    loadingStates.value = nextStates
   }
 }
 
 // Initial data fetch and periodic updates for running status
 onMounted(() => {
   store.fetchModels()
-  store.fetchRunningModels()
-  store.fetchGpuInfo()
   store.setupPullListener()
-  
-  // Refresh running models and GPU info every 5 seconds
-  const interval = setInterval(() => {
-    store.fetchRunningModels()
-    store.fetchGpuInfo()
-  }, 5000)
-  
-  // Cleanup on unmount (not strictly necessary for setInterval in this context but good practice)
-  return () => clearInterval(interval)
+  store.startMonitoring()
+})
+
+onUnmounted(() => {
+  store.stopMonitoring()
 })
 </script>

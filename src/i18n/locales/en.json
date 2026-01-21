@@ -47,7 +47,8 @@
     "stopped": "Generation stopped",
     "confirmClearTitle": "Clear Chat History?",
     "confirmClearMsg": "All messages in this session will be permanently deleted.",
-    "confirmClearBtn": "Clear All"
+    "confirmClearBtn": "Clear All",
+    "noRunningModels": "No running models found"
   },
   "dashboard": {
     "title": "Usage Analytics",

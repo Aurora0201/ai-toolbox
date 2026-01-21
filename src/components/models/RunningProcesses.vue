@@ -75,8 +75,8 @@
           <!-- Right side: Actions -->
           <div class="shrink-0">
             <button 
-              class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 transition-colors bg-danger text-white hover:opacity-90 disabled:opacity-50"
-              :disabled="loadingStates[model.name] === 'stopping'"
+              class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 transition-colors bg-danger text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="!!loadingStates[model.name]"
               @click="$emit('stop', model.name)"
             >
               <template v-if="loadingStates[model.name] === 'stopping'">

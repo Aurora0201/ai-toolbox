@@ -139,6 +139,33 @@ export const useModelStore = defineStore('models', {
     selectModel(name) {
       this.selectedModel = name
       localStorage.setItem('selectedModel', name)
+    },
+
+    /**
+     * Starts periodic polling for model and system status.
+     * Prevents duplicate intervals.
+     */
+    startMonitoring() {
+      if (this._pollInterval) return
+      
+      // Immediate fetch
+      this.fetchRunningModels()
+      this.fetchGpuInfo()
+      
+      this._pollInterval = setInterval(() => {
+        this.fetchRunningModels()
+        this.fetchGpuInfo()
+      }, 5000)
+    },
+
+    /**
+     * Stops the periodic polling.
+     */
+    stopMonitoring() {
+      if (this._pollInterval) {
+        clearInterval(this._pollInterval)
+        this._pollInterval = null
+      }
     }
   }
 })
