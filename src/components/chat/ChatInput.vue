@@ -2,33 +2,63 @@
   <div class="relative w-full max-w-3xl mx-auto transition-all duration-300">
     <!-- Floating Capsule Input -->
     <div 
-      class="bg-background-surface border border-border rounded-[28px] shadow-lg transition-all duration-300 focus-within:border-primary/50 focus-within:ring-4 focus-within:ring-primary/10 overflow-hidden"
+      class="bg-background-surface border border-border rounded-[28px] shadow-lg transition-all duration-300 focus-within:border-primary/50 focus-within:ring-4 focus-within:ring-primary/10"
       :class="{ 'opacity-50 pointer-events-none': disabled && !isGenerating }"
     >
       <!-- Top Bar: Model Selector & Actions -->
       <div class="flex items-center justify-between px-5 pt-3 pb-1">
         <div class="flex items-center gap-2">
-          <div class="flex items-center gap-1.5 px-2.5 py-1 bg-background-element rounded-full border border-border">
-            <Cpu class="w-3.5 h-3.5 text-primary" />
-            <select
-              :value="selectedModel"
-              class="bg-transparent border-none text-xs font-bold text-text-main focus:ring-0 cursor-pointer outline-none py-0 pr-6 appearance-none"
-              @change="$emit('update:selectedModel', $event.target.value)"
+          <div class="relative group">
+            <button
+              class="flex items-center gap-1.5 px-2.5 py-1 bg-background-element rounded-full border border-border hover:border-primary/30 transition-all active:scale-95"
+              @click="toggleDropdown"
             >
-              <option
-                disabled
-                value=""
+              <Cpu class="w-3.5 h-3.5 text-primary" />
+              <span class="text-xs font-bold text-text-main">
+                {{ selectedModel || $t('chat.selectModel') }}
+              </span>
+              <ChevronDown 
+                class="w-3.5 h-3.5 text-text-sub transition-transform duration-200"
+                :class="{ 'rotate-180': isDropdownOpen }"
+              />
+            </button>
+
+            <!-- Custom Dropdown Menu -->
+            <transition
+              enter-active-class="transition ease-out duration-200"
+              enter-from-class="opacity-0 translate-y-1 scale-95"
+              enter-to-class="opacity-100 translate-y-0 scale-100"
+              leave-active-class="transition ease-in duration-150"
+              leave-from-class="opacity-100 translate-y-0 scale-100"
+              leave-to-class="opacity-0 translate-y-1 scale-95"
+            >
+              <div
+                v-if="isDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 w-48 bg-background-surface border border-border rounded-lg shadow-xl py-1 z-50 overflow-hidden"
               >
-                {{ $t('chat.selectModel') }}
-              </option>
-              <option 
-                v-for="model in runningModels" 
-                :key="model.name" 
-                :value="model.name"
-              >
-                {{ model.name }}
-              </option>
-            </select>
+                <div 
+                  v-if="runningModels.length === 0"
+                  class="px-3 py-2 text-xs text-text-sub italic"
+                >
+                  {{ $t('chat.noRunningModels') }}
+                </div>
+                <template v-else>
+                  <button
+                    v-for="model in runningModels"
+                    :key="model.name"
+                    class="w-full text-left px-3 py-2 text-xs font-medium transition-colors hover:bg-background-element flex items-center justify-between"
+                    :class="selectedModel === model.name ? 'text-primary' : 'text-text-main'"
+                    @click="selectModel(model.name)"
+                  >
+                    <span class="truncate">{{ model.name }}</span>
+                    <Check 
+                      v-if="selectedModel === model.name"
+                      class="w-3 h-3" 
+                    />
+                  </button>
+                </template>
+              </div>
+            </transition>
           </div>
           
           <button 
@@ -119,8 +149,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
-import { Cpu, ImagePlus, Trash2, ArrowUp, Square, X } from 'lucide-vue-next'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { Cpu, ImagePlus, Trash2, ArrowUp, Square, X, ChevronDown, Check } from 'lucide-vue-next'
 import { useConfirm } from '../../composables/useConfirm'
 import { useI18n } from 'vue-i18n'
 
@@ -153,10 +183,25 @@ const text = ref('')
 const images = ref([])
 const inputRef = ref(null)
 const fileInput = ref(null)
+const isDropdownOpen = ref(false)
 
 const canSend = computed(() => {
   return text.value.trim().length > 0 || images.value.length > 0
 })
+
+const toggleDropdown = (e) => {
+  e.stopPropagation()
+  isDropdownOpen.value = !isDropdownOpen.value
+}
+
+const selectModel = (name) => {
+  emit('update:selectedModel', name)
+  isDropdownOpen.value = false
+}
+
+const closeDropdown = () => {
+  isDropdownOpen.value = false
+}
 
 const adjustHeight = () => {
   const el = inputRef.value
@@ -231,6 +276,11 @@ const removeImage = (idx) => {
 
 onMounted(() => {
   inputRef.value?.focus()
+  window.addEventListener('click', closeDropdown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeDropdown)
 })
 
 defineExpose({

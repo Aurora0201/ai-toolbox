@@ -14,7 +14,6 @@ pub async fn get_models(state: State<'_, AppState>) -> AppResult<Vec<Model>> {
 /// Command to fetch currently running models and their resource usage.
 #[tauri::command]
 pub async fn get_running_models(state: State<'_, AppState>) -> AppResult<Vec<RunningModel>> {
-    debug!("Fetching running models");
     state.ollama.get_running_models().await
 }
 
