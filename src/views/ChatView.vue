@@ -1,199 +1,203 @@
 <template>
-  <div class="flex flex-col h-full p-6 max-w-[900px] mx-auto">
+  <div class="flex flex-col h-full overflow-hidden bg-background-app relative">
+    <!-- Messages Container -->
     <div
       ref="messagesRef"
-      class="flex-1 overflow-y-auto mb-6 pr-2"
+      class="flex-1 overflow-y-auto pt-4 pb-60 scroll-smooth"
     >
-      <div
-        v-for="(msg, index) in messages"
-        :key="index"
-        class="mb-6"
-      >
+      <div class="max-w-3xl mx-auto w-full min-h-full flex flex-col">
         <div
-          class="flex gap-3 max-w-[85%]"
-          :class="msg.role === 'user' ? 'ml-auto justify-end' : ''"
+          v-if="chatStore.messages.length === 0"
+          class="flex-1 flex flex-col items-center justify-center opacity-40 select-none"
         >
-          <div
-            v-if="msg.role === 'assistant'"
-            class="w-9 h-9 bg-background-surface border border-border rounded-full flex items-center justify-center shrink-0 shadow-sm"
-          >
-            <Bot class="w-5 h-5 text-primary" />
+          <div class="text-6xl mb-4 animate-bounce">
+            💬
           </div>
-          
-          <div
-            class="flex flex-col"
-            :class="msg.role === 'user' ? 'items-end' : ''"
-          >
-            <div class="mb-1">
-              <span
-                class="text-[10px] font-bold text-text-sub uppercase font-mono"
-              >{{ msg.role === 'user' ? $t('chat.you') : $t('chat.ai') }}</span>
-            </div>
-            <div 
-              class="p-3 border rounded-lg shadow-sm"
-              :class="msg.role === 'user' ? 'bg-primary/5 border-primary/20 rounded-tr-none' : 'bg-background-surface border-border rounded-tl-none'"
-            >
-              <div class="text-sm leading-relaxed whitespace-pre-wrap text-text-main">
-                {{ msg.content }}
-              </div>
-            </div>
-          </div>
+          <h2 class="text-xl font-black uppercase tracking-[0.2em] text-text-sub">
+            {{ $t('chat.startConversation') }}
+          </h2>
+          <p class="text-sm mt-2 font-mono">
+            {{ $t('chat.noHistoryWarning') }}
+          </p>
+        </div>
 
-          <div
-            v-if="msg.role === 'user'"
-            class="w-9 h-9 bg-background-surface border border-border rounded-full flex items-center justify-center shrink-0 shadow-sm"
-          >
-            <User class="w-5 h-5 text-text-sub" />
-          </div>
-        </div>
-      </div>
-      
-      <div
-        v-if="loading"
-        class="mb-6"
-      >
-        <div class="flex gap-3 max-w-[85%]">
-          <div class="w-9 h-9 bg-background-surface border border-border rounded-full flex items-center justify-center shrink-0 shadow-sm">
-            <Bot class="w-5 h-5 text-primary" />
-          </div>
-          <div class="flex flex-col">
-            <div class="mb-1">
-              <span class="text-[10px] font-bold text-text-sub uppercase font-mono">{{ $t('chat.ai') }}</span>
-            </div>
-            <div class="p-3 bg-background-surface border border-border rounded-lg shadow-sm rounded-tl-none">
-              <div class="text-muted flex items-center gap-2 text-sm">
-                <Loader2 class="w-4 h-4 animate-spin" /> {{ $t('chat.thinking') }}
-              </div>
-            </div>
-          </div>
-        </div>
+        <template v-else>
+          <ChatMessage
+            v-for="(msg, index) in chatStore.messages"
+            :key="index"
+            v-bind="msg"
+            :is-generating="chatStore.isGenerating && index === chatStore.messages.length - 1"
+          />
+        </template>
       </div>
     </div>
 
-    <div class="bg-background-surface border border-primary/50 rounded-lg shadow-md">
-      <div class="p-2 px-3">
-        <select
-          v-model="store.selectedModel"
-          class="w-auto bg-transparent border-none font-semibold text-text-main text-sm focus:ring-0 cursor-pointer outline-none py-1"
-          @change="store.selectModel($event.target.value)"
-        >
-          <option
-            disabled
-            value=""
-          >
-            {{ $t('chat.selectModel') }}
-          </option>
-          <option
-            v-for="model in store.models"
-            :key="model.name"
-            :value="model.name"
-          >
-            {{ model.name }}
-          </option>
-        </select>
-      </div>
-      <div class="p-3 pt-0">
-        <div class="relative flex items-end">
-          <textarea 
-            v-model="input" 
-            :placeholder="$t('chat.placeholder')" 
-            :disabled="loading"
-            rows="3"
-            class="w-full border-none bg-transparent resize-none p-0 pr-10 focus:ring-0 text-sm outline-none text-text-main placeholder:text-text-sub"
-            @keydown.enter.prevent="sendMessage"
-          />
-          <button
-            :disabled="loading || !store.selectedModel"
-            class="absolute bottom-0 right-0 p-2 text-primary hover:bg-background-element rounded-md disabled:text-text-sub transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
-            @click="sendMessage"
-          >
-            <SendHorizontal class="w-5 h-5" />
-          </button>
-        </div>
+    <!-- Bottom Gradient Mask & Input Area -->
+    <div class="absolute bottom-0 left-0 right-0 h-60 bg-gradient-to-t from-background-app to-transparent pointer-events-none z-10" />
+    
+    <div class="absolute bottom-0 left-0 right-0 p-6 pointer-events-none z-20">
+      <div class="w-full flex justify-center pointer-events-auto">
+        <ChatInput
+          v-model:selected-model="modelStore.selectedModel"
+          :running-models="modelStore.runningModels"
+          :is-generating="chatStore.isGenerating"
+          :messages-count="chatStore.messages.length"
+          :disabled="!modelStore.selectedModel"
+          :placeholder="modelStore.selectedModel ? $t('chat.placeholder') : $t('chat.selectToStart')"
+          @send="handleSend"
+          @stop="handleStop"
+          @clear="handleClear"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-/**
- * Chat view component for interacting with models.
- */
-import { ref, onMounted, nextTick, computed } from 'vue'
+import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import { useModelStore } from '../store/models'
 import { useSettingsStore } from '../store/settings'
+import { useChatStore } from '../store/chat'
 import { invoke } from '@tauri-apps/api/core'
-import { Bot, User, SendHorizontal, Loader2 } from 'lucide-vue-next'
+import { listen } from '@tauri-apps/api/event'
+import ChatMessage from '../components/chat/ChatMessage.vue'
+import ChatInput from '../components/chat/ChatInput.vue'
 import { useI18n } from 'vue-i18n'
 
-const store = useModelStore()
-const settings = useSettingsStore()
+const modelStore = useModelStore()
+const settingsStore = useSettingsStore()
+const chatStore = useChatStore()
 const { t } = useI18n()
-const input = ref('')
-const messages = ref([])
-const loading = ref(false)
+
 const messagesRef = ref(null)
+let unlistenFn = null
+let isProcessing = false
 
-/**
- * Sends a message to the selected Ollama model.
- */
-const sendMessage = async () => {
-  if (!input.value.trim() || !store.selectedModel) return
-
-  const userMsg = input.value
-  messages.value.push({ role: 'user', content: userMsg })
-  input.value = ''
-  loading.value = true
-  
-  await scrollToBottom()
-
-  try {
-    const endpoint = settings.ollamaEndpoint.endsWith('/') 
-      ? `${settings.ollamaEndpoint}api/generate` 
-      : `${settings.ollamaEndpoint}/api/generate`
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      body: JSON.stringify({
-        model: store.selectedModel,
-        prompt: userMsg,
-        stream: false
-      })
-    })
-    
-    const data = await response.json()
-    messages.value.push({ role: 'assistant', content: data.response })
-    
-    const today = new Date().toISOString().split('T')[0]
-    await invoke('record_tokens', {
-      date: today,
-      prompt: data.prompt_eval_count || 0,
-      completion: data.eval_count || 0,
-      model: store.selectedModel
-    })
-    
-  } catch (error) {
-    messages.value.push({ role: 'assistant', content: t('chat.errorMessage') + error })
-  } finally {
-    loading.value = false
-    await scrollToBottom()
-  }
-}
-
-/**
- * Scrolls the message container to the bottom.
- */
-const scrollToBottom = async () => {
+const scrollToBottom = async (force = false) => {
   await nextTick()
   if (messagesRef.value) {
-    messagesRef.value.scrollTop = messagesRef.value.scrollHeight
+    const { scrollTop, scrollHeight, clientHeight } = messagesRef.value
+    // Only scroll if we are already near bottom or force is true
+    if (force || scrollHeight - scrollTop - clientHeight < 200) {
+      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
+    }
   }
 }
 
+const handleSend = async ({ text, images }) => {
+  if (chatStore.isGenerating) return
+  
+  chatStore.addMessage('user', text)
+  scrollToBottom(true)
+  
+  chatStore.setGenerating(true)
+  chatStore.addMessage('assistant', '', '') // Add empty assistant message for streaming
+  
+  let accumulatedContent = ''
+  let accumulatedThinking = ''
+  isProcessing = true
+  
+  try {
+    // Listen for streaming events
+    unlistenFn = await listen('chat-response', async (event) => {
+      if (!isProcessing) return // Ignore if stopped
+      
+      const payload = event.payload
+      
+      if (payload.done) {
+        // Final update to ensure content/thinking and status (is_thinking: false) are captured
+        if (payload.content) accumulatedContent += payload.content
+        if (payload.thinking) accumulatedThinking += payload.thinking
+        chatStore.updateLastMessage(accumulatedContent, accumulatedThinking, false)
+
+        // Record usage
+        const today = new Date().toISOString().split('T')[0]
+        const promptEvalCount = payload.prompt_eval_count || 0
+        const evalCount = payload.eval_count || 0
+        
+        await invoke('record_tokens', {
+          date: today,
+          prompt: promptEvalCount,
+          completion: evalCount,
+          model: modelStore.selectedModel
+        })
+        
+        isProcessing = false
+        chatStore.setGenerating(false)
+        if (unlistenFn) {
+            unlistenFn()
+            unlistenFn = null
+        }
+        return
+      }
+      
+      // Append new chunks from backend
+      if (payload.content) accumulatedContent += payload.content
+      if (payload.thinking) accumulatedThinking += payload.thinking
+      
+      chatStore.updateLastMessage(accumulatedContent, accumulatedThinking, payload.is_thinking)
+      scrollToBottom()
+    })
+
+    // Start generation via Backend Command
+    await invoke('generate_completion', {
+      request: {
+        model: modelStore.selectedModel,
+        prompt: text,
+        images: images.map(img => img.split(',')[1]), // Strip data:image/xxx;base64,
+        stream: true
+      }
+    })
+
+  } catch (error) {
+    console.error('Generation failed:', error)
+    chatStore.updateLastMessage(t('chat.errorMessage') + error)
+    chatStore.setGenerating(false)
+    if (unlistenFn) {
+        unlistenFn()
+        unlistenFn = null
+    }
+  }
+}
+
+const handleStop = async () => {
+  isProcessing = false
+  chatStore.setGenerating(false)
+  if (unlistenFn) {
+      unlistenFn()
+      unlistenFn = null
+  }
+  // Optional: Call backend to kill process if needed, 
+  // but just stopping the listener is enough for UI responsiveness
+  // Real cancellation would require a backend abort handle which is complex with current structure
+  
+  chatStore.updateLastMessage(chatStore.messages[chatStore.messages.length - 1].content + `\n\n*[${t('chat.stopped')}]*`, chatStore.messages[chatStore.messages.length - 1].thinking)
+}
+
+const handleClear = () => {
+  chatStore.clearMessages()
+}
+
+// Watch for messages change to scroll
+watch(() => chatStore.messages.length, () => {
+  scrollToBottom(true)
+})
+
 onMounted(async () => {
-  await store.fetchModels()
-  if (!store.selectedModel && store.models.length > 0) {
-    store.selectModel(store.models[0].name)
+  await modelStore.fetchRunningModels()
+  if (modelStore.runningModels.length > 0 && !modelStore.selectedModel) {
+    modelStore.selectModel(modelStore.runningModels[0].name)
   }
 })
+
+onUnmounted(() => {
+  if (unlistenFn) unlistenFn()
+})
 </script>
+
+<style scoped>
+/* Ensure smooth transitions for layout */
+.flex-1 {
+  scrollbar-gutter: stable;
+}
+</style>

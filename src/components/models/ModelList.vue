@@ -12,7 +12,7 @@
         <input 
           v-model="newModelName" 
           :placeholder="$t('models.pullPlaceholder')" 
-          class="flex-1 w-full p-2.5 rounded-md border border-border bg-background-surface text-text-main text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+          class="flex-1 w-full p-2.5 rounded-md border border-border bg-background-surface text-text-main text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
           @keyup.enter="handlePull"
         >
         <button
