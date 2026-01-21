@@ -12,6 +12,15 @@ export const useSettingsStore = defineStore('settings', {
     language: 'zh', // 'en', 'zh'
     ollamaEndpoint: 'http://127.0.0.1:11434',
     logLevel: 'info', // 'debug', 'info', 'warn', 'error'
+    generationParameters: {
+      num_ctx: 2048,
+      num_predict: -1,
+      temperature: 0.8,
+      top_k: 40,
+      top_p: 0.9,
+      repeat_penalty: 1.1,
+      seed: -1
+    },
   }),
 
   actions: {
@@ -22,6 +31,14 @@ export const useSettingsStore = defineStore('settings', {
       this.applyTheme(this.theme)
       this.applyLanguage(this.language)
       this.setLogLevel(this.logLevel)
+    },
+
+    /**
+     * Updates generation parameters.
+     * @param {Object} params - The new parameters.
+     */
+    updateGenerationParameters(params) {
+      this.generationParameters = { ...this.generationParameters, ...params }
     },
 
     /**

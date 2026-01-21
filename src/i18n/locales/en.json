@@ -89,7 +89,18 @@
     "deleted": "Deleted {name}",
     "deleteFailed": "Failed to delete: ",
     "confirmDeleteTitle": "Delete Model",
-    "confirmDeleteMsg": "Are you sure you want to delete {name}? This action cannot be undone."
+    "confirmDeleteMsg": "Are you sure you want to delete {name}? This action cannot be undone.",
+    "parameters": {
+      "title": "Model Parameters",
+      "ctx": "Context Window",
+      "predict": "Max Prediction",
+      "advanced": "Advanced Options",
+      "temperature": "Temperature",
+      "topK": "Top K",
+      "topP": "Top P",
+      "repeatPenalty": "Repeat Penalty",
+      "seed": "Seed"
+    }
   },
   "settings": {
     "title": "Settings",
