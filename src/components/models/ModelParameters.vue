@@ -156,19 +156,6 @@
   </div>
 </template>
 
-<style scoped>
-/* Hide native spin buttons for a cleaner look */
-.custom-number-input::-webkit-outer-spin-button,
-.custom-number-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.custom-number-input {
-  -moz-appearance: textfield;
-}
-</style>
-
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { useSettingsStore } from '../../store/settings'
@@ -189,3 +176,16 @@ const updateParams = () => {
   settingsStore.updateGenerationParameters(params)
 }
 </script>
+
+<style scoped>
+/* Hide native spin buttons for a cleaner look */
+.custom-number-input::-webkit-outer-spin-button,
+.custom-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.custom-number-input {
+  -moz-appearance: textfield;
+}
+</style>
