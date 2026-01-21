@@ -34,10 +34,20 @@
   "chat": {
     "you": "YOU",
     "ai": "AI",
-    "thinking": "Thinking...",
+    "thinking": "Thinking",
+    "thought_completed": "Thinking Completed",
     "selectModel": "Select Model",
-    "placeholder": "Type your message here...",
-    "errorMessage": "Error: "
+    "placeholder": "Type a message... (Enter to send, Shift+Enter for newline)",
+    "selectToStart": "Select a running model to start chatting",
+    "errorMessage": "Error: ",
+    "startConversation": "Start a new chat",
+    "noHistoryWarning": "Messages are only kept for the current session.",
+    "clear": "Clear",
+    "uploadImage": "Upload Image",
+    "stopped": "Generation stopped",
+    "confirmClearTitle": "Clear Chat History?",
+    "confirmClearMsg": "All messages in this session will be permanently deleted.",
+    "confirmClearBtn": "Clear All"
   },
   "dashboard": {
     "title": "Usage Analytics",

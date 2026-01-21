@@ -32,10 +32,41 @@ pub struct ProcessResponse {
     pub models: Vec<RunningModel>,
 }
 
-/// Client for interacting with the Ollama API.
-pub struct OllamaClient {
-    client: Client,
-    base_url: Mutex<String>,
+/// Request structure for generating a completion.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GenerateRequest {
+    pub model: String,
+    pub prompt: String,
+    pub images: Option<Vec<String>>,
+    pub stream: bool,
+}
+
+/// Response structure for a generation chunk.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct GenerateResponse {
+    pub model: String,
+    pub created_at: String,
+    pub response: String,
+    pub thinking: Option<String>, // Added support for Ollama's thinking field
+    pub done: bool,
+    pub context: Option<Vec<i64>>,
+    pub total_duration: Option<u64>,
+    pub load_duration: Option<u64>,
+    pub prompt_eval_count: Option<u64>,
+    pub prompt_eval_duration: Option<u64>,
+    pub eval_count: Option<u64>,
+    pub eval_duration: Option<u64>,
+}
+
+/// Payload sent to the frontend during chat generation.
+#[derive(Debug, Serialize, Clone)]
+pub struct ChatResponse {
+    pub content: String,
+    pub thinking: String,
+    pub is_thinking: bool, // Added to track phase
+    pub done: bool,
+    pub prompt_eval_count: u64,
+    pub eval_count: u64,
 }
 
 /// Represents the progress of a model pull operation.
@@ -45,6 +76,12 @@ pub struct PullProgress {
     pub digest: Option<String>,
     pub total: Option<u64>,
     pub completed: Option<u64>,
+}
+
+/// Client for interacting with the Ollama API.
+pub struct OllamaClient {
+    client: Client,
+    base_url: Mutex<String>,
 }
 
 impl OllamaClient {
@@ -75,6 +112,7 @@ impl OllamaClient {
         let url = format!("{}/api/tags", self.get_base_url());
         let resp = self.client.get(url).send().await?;
         let tags: TagsResponse = resp.json().await?;
+        log::debug!("Fetched tags from Ollama: {:?}", tags);
         Ok(tags.models)
     }
 
@@ -83,6 +121,7 @@ impl OllamaClient {
         let url = format!("{}/api/ps", self.get_base_url());
         let resp = self.client.get(url).send().await?;
         let ps: ProcessResponse = resp.json().await?;
+        log::debug!("Fetched running models (ps) from Ollama: {:?}", ps);
         Ok(ps.models)
     }
 
@@ -142,6 +181,351 @@ impl OllamaClient {
                 "keep_alive": -1 // Keep loaded indefinitely
             }))
             .send().await?;
+        Ok(())
+    }
+
+    /// Generate a completion for a prompt with streaming support and tag parsing.
+    pub async fn generate_completion<F, Fut>(&self, request: GenerateRequest, on_event: F) -> AppResult<()>
+    where
+        F: Fn(ChatResponse) -> Fut,
+        Fut: std::future::Future<Output = ()>,
+    {
+        let url = format!("{}/api/generate", self.get_base_url());
+        let resp = self.client.post(url)
+            .json(&request)
+            .send().await?;
+
+        let mut stream = resp.bytes_stream();
+        
+        // State for the tag parser
+        let mut buffer = String::new();
+        let mut in_think_block = false;
+
+        while let Some(item) = stream.next().await {
+            let chunk = item?;
+            let cursor = std::io::Cursor::new(chunk);
+            let deserializer = serde_json::Deserializer::from_reader(cursor);
+            let iter = deserializer.into_iter::<GenerateResponse>();
+
+                        for response in iter.flatten() {
+
+            
+
+                                                if response.done {
+
+            
+
+                                                    // Flush remaining buffer
+
+            
+
+                                                    let mut final_content = String::new();
+
+            
+
+                                                    let mut final_thinking = String::new();
+
+            
+
+                                                    
+
+            
+
+                                                    if in_think_block {
+
+            
+
+                                                        final_thinking = buffer.clone();
+
+            
+
+                                                    } else {
+
+            
+
+                                                        final_content = buffer.clone();
+
+            
+
+                                                    }
+
+            
+
+                            
+
+            
+
+                                                    on_event(ChatResponse {
+
+            
+
+                                                        content: final_content,
+
+            
+
+                                                        thinking: final_thinking,
+
+            
+
+                                                        is_thinking: false,
+
+            
+
+                                                        done: true,
+
+            
+
+                                                        prompt_eval_count: response.prompt_eval_count.unwrap_or(0),
+
+            
+
+                                                        eval_count: response.eval_count.unwrap_or(0),
+
+            
+
+                                                    }).await;
+
+            
+
+                                                    return Ok(());
+
+            
+
+                                                }
+
+            
+
+                            
+
+            
+
+                                                // Handle direct 'thinking' field from Ollama (if present)
+
+            
+
+                                                if let Some(think_str) = &response.thinking {
+
+            
+
+                                                    if !think_str.is_empty() {
+
+            
+
+                                                         on_event(ChatResponse {
+
+            
+
+                                                            content: "".to_string(),
+
+            
+
+                                                            thinking: think_str.clone(),
+
+            
+
+                                                            is_thinking: true,
+
+            
+
+                                                            done: false,
+
+            
+
+                                                            prompt_eval_count: 0,
+
+            
+
+                                                            eval_count: 0,
+
+            
+
+                                                        }).await;
+
+            
+
+                                                    }
+
+            
+
+                                                }
+
+            
+
+                            
+
+            
+
+                                                // Append new content to buffer
+
+            
+
+                                                buffer.push_str(&response.response);
+
+            
+
+                            
+
+            
+
+                                                // Process buffer for tags
+
+            
+
+                                                let mut processed_content = String::new();
+
+            
+
+                                                let mut processed_thinking = String::new();
+
+            
+
+                                                let mut buffer_cleared_until = 0;
+
+            
+
+                            
+
+            
+
+                                                loop {
+
+            
+
+                                                    let current_slice = &buffer[buffer_cleared_until..];
+
+            
+
+                                                    
+
+            
+
+                                                    if in_think_block {
+
+            
+
+                                                        // Look for closing tag </think>
+                                                        if let Some(idx) = current_slice.find("</think>") {
+                                                            // Content before tag is thinking
+                                                            processed_thinking.push_str(&current_slice[..idx]);
+                                                            // Move past tag
+                                                            buffer_cleared_until += idx + 8; // 8 is len of </think>
+                                                            in_think_block = false;
+                                                        } else {
+                                                            // No closing tag found.
+                                                            // We can safely emit everything EXCEPT the last few chars 
+                                                            // which might be a partial </think> tag.
+                                                            let mut safe_len = current_slice.len().saturating_sub(7); // </think is 7 chars (partial)
+                                                            while !current_slice.is_char_boundary(safe_len) {
+                                                                safe_len -= 1;
+                                                            }
+                                                            
+                                                            if safe_len > 0 {
+                                                                processed_thinking.push_str(&current_slice[..safe_len]);
+                                                                buffer_cleared_until += safe_len;
+                                                            }
+                                                            break;
+                                                        }
+                                                    } else {
+                                                        // Look for opening tag <think>
+                                                        if let Some(idx) = current_slice.find("<think>") {
+                                                            // Content before tag is normal content
+                                                            processed_content.push_str(&current_slice[..idx]);
+                                                            // Move past tag
+                                                            buffer_cleared_until += idx + 7; // 7 is len of <think>
+                                                            in_think_block = true;
+                                                        } else {
+                                                            // No opening tag found.
+                                                            // Emit everything except partial <think
+                                                            let mut safe_len = current_slice.len().saturating_sub(6); // <think is 6 chars
+                                                            while !current_slice.is_char_boundary(safe_len) {
+                                                                safe_len -= 1;
+                                                            }
+
+                                                            if safe_len > 0 {
+                                                                processed_content.push_str(&current_slice[..safe_len]);
+                                                                buffer_cleared_until += safe_len;
+                                                            }
+                                                            break;
+                                                        }
+                                                    }
+
+            
+
+                                                }
+
+            
+
+                            
+
+            
+
+                                                // Remove processed part from buffer
+
+            
+
+                                                if buffer_cleared_until > 0 {
+
+            
+
+                                                    buffer = buffer[buffer_cleared_until..].to_string();
+
+            
+
+                                                }
+
+            
+
+                            
+
+            
+
+                                                // Emit if we have something
+
+            
+
+                                                if !processed_content.is_empty() || !processed_thinking.is_empty() {
+
+            
+
+                                                     on_event(ChatResponse {
+
+            
+
+                                                        content: processed_content,
+
+            
+
+                                                        thinking: processed_thinking,
+
+            
+
+                                                        is_thinking: in_think_block || response.thinking.is_some(),
+
+            
+
+                                                        done: false,
+
+            
+
+                                                        prompt_eval_count: 0,
+
+            
+
+                                                        eval_count: 0,
+
+            
+
+                                                    }).await;
+
+            
+
+                                                }
+
+            
+
+                            
+                }
+            }
         Ok(())
     }
 }

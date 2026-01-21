@@ -47,6 +47,53 @@
   }
 }
 
+/* Markdown & Code Styles */
+.markdown-body {
+  @apply text-[13px] leading-6 break-words;
+}
+.markdown-body p {
+  @apply mb-4 last:mb-0;
+}
+.markdown-body pre {
+  @apply my-4 p-4 rounded-lg bg-[#282c34] text-[#abb2bf] overflow-x-auto border border-border font-medium;
+}
+.markdown-body code:not(pre code) {
+  @apply px-1.5 py-0.5 rounded bg-background-element font-mono text-sm text-primary font-medium;
+}
+.markdown-body ul, .markdown-body ol {
+  @apply mb-4 ml-6 list-outside;
+}
+.markdown-body ul { @apply list-disc; }
+.markdown-body ol { @apply list-decimal; }
+.markdown-body li { @apply mb-1; }
+.markdown-body blockquote {
+  @apply pl-4 border-l-4 border-border text-text-sub italic;
+}
+.markdown-body table {
+  @apply w-full mb-4 border-collapse;
+}
+.markdown-body th, .markdown-body td {
+  @apply p-2 border border-border text-sm;
+}
+.markdown-body th { @apply bg-background-element font-bold; }
+
+/* Highlight.js theme overrides (One Dark inspired) */
+.hljs-keyword, .hljs-selector-tag { @apply text-[#c678dd]; }
+.hljs-string { @apply text-[#98c379]; }
+.hljs-title, .hljs-section { @apply text-[#61afef]; }
+.hljs-comment { @apply text-[#5c6370]; }
+.hljs-variable { @apply text-[#e06c75]; }
+.hljs-number { @apply text-[#d19a66]; }
+
+/* Cursor Animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
 /* Custom Scrollbar for Webkit */
 ::-webkit-scrollbar {
   width: 8px;

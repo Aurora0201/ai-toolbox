@@ -27,7 +27,7 @@
           </div>
           <select 
             v-model="settings.theme" 
-            class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+            class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none"
             @change="handleThemeChange"
           >
             <option value="light">
@@ -54,7 +54,7 @@
           </div>
           <select 
             v-model="settings.language"
-            class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+            class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none"
             @change="handleLanguageChange"
           >
             <option value="zh">
@@ -86,7 +86,7 @@
           </div>
           <select 
             :value="settings.logLevel" 
-            class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+            class="w-40 px-3 py-2 bg-background-surface border border-border rounded-md text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none"
             @change="handleLogLevelChange"
           >
             <option value="debug">
@@ -138,7 +138,7 @@
               v-model="tempEndpoint"
               type="text" 
               placeholder="http://127.0.0.1:11434"
-              class="flex-1 px-3 py-2 border border-border rounded-md bg-background-surface text-sm text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+              class="flex-1 px-3 py-2 border border-border rounded-md bg-background-surface text-sm text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors appearance-none"
               :class="{ 'border-danger focus:border-danger focus:ring-danger': !isValidUrl }"
             >
             <button 
