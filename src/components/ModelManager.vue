@@ -13,6 +13,9 @@
       @delete="deleteModel"
     />
 
+    <!-- Component for configuring model parameters -->
+    <ModelParameters />
+
     <!-- Component for monitoring running processes and resources -->
     <RunningProcesses 
       :running-models="store.runningModels"
@@ -30,6 +33,7 @@ import { useToast } from '../composables/useToast'
 import { useConfirm } from '../composables/useConfirm'
 import ModelList from './models/ModelList.vue'
 import RunningProcesses from './models/RunningProcesses.vue'
+import ModelParameters from './models/ModelParameters.vue'
 import { useI18n } from 'vue-i18n'
 
 /**

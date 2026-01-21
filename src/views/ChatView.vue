@@ -139,12 +139,19 @@ const handleSend = async ({ text, images }) => {
       scrollToBottom()
     })
 
+    // Prepare generation options
+    const options = { ...settingsStore.generationParameters }
+    // Clean up special values (-1 means default/random)
+    if (options.num_predict === -1) options.num_predict = undefined
+    if (options.seed === -1) options.seed = undefined
+
     // Start generation via Backend Command
     await invoke('generate_completion', {
       request: {
         model: modelStore.selectedModel,
         prompt: text,
         images: images.map(img => img.split(',')[1]), // Strip data:image/xxx;base64,
+        options: options,
         stream: true
       }
     })

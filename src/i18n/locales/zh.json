@@ -89,7 +89,18 @@
     "deleted": "已删除 {name}",
     "deleteFailed": "删除失败: ",
     "confirmDeleteTitle": "删除模型",
-    "confirmDeleteMsg": "您确定要删除 {name} 吗？此操作无法撤销。"
+    "confirmDeleteMsg": "您确定要删除 {name} 吗？此操作无法撤销。",
+    "parameters": {
+      "title": "模型参数",
+      "ctx": "上下文窗口 (Context Window)",
+      "predict": "最大生成长度 (Max Prediction)",
+      "advanced": "高级选项",
+      "temperature": "温度 (Temperature)",
+      "topK": "Top K",
+      "topP": "Top P",
+      "repeatPenalty": "重复惩罚 (Repeat Penalty)",
+      "seed": "随机种子 (Seed)"
+    }
   },
   "settings": {
     "title": "设置",
