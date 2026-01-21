@@ -72,10 +72,11 @@ pub struct ChatResponse {
 /// Represents the progress of a model pull operation.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PullProgress {
-    pub status: String,
+    pub status: Option<String>,
     pub digest: Option<String>,
     pub total: Option<u64>,
     pub completed: Option<u64>,
+    pub error: Option<String>,
 }
 
 /// Client for interacting with the Ollama API.
@@ -157,6 +158,10 @@ impl OllamaClient {
             .json(&serde_json::json!({ "name": name, "stream": true }))
             .send().await?;
 
+        if !resp.status().is_success() {
+             return Err(anyhow::anyhow!("Ollama API Error: {}", resp.status()).into());
+        }
+
         let mut stream = resp.bytes_stream();
         while let Some(item) = stream.next().await {
             let chunk = item?;
@@ -165,8 +170,18 @@ impl OllamaClient {
             let deserializer = serde_json::Deserializer::from_reader(cursor);
             let iter = deserializer.into_iter::<PullProgress>();
             
-            for progress in iter.flatten() {
-                on_progress(progress).await;
+            for res in iter {
+                match res {
+                    Ok(progress) => {
+                         if let Some(err_msg) = &progress.error {
+                             return Err(anyhow::anyhow!("Pull failed: {}", err_msg).into());
+                         }
+                         on_progress(progress).await;
+                    }
+                    Err(e) => {
+                        log::warn!("Failed to parse pull progress chunk: {}", e);
+                    }
+                }
             }
         }
         Ok(())
