@@ -45,7 +45,7 @@ const updateChart = async () => {
         trigger: 'axis',
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderColor: '#dee2e6',
-        textStyle: { color: '#212529', fontFamily: 'sans-serif' },
+        textStyle: { color: '#212529', fontFamily: '"Google Sans", "Roboto", "Noto Sans SC", sans-serif' },
         axisPointer: { type: 'line', lineStyle: { color: '#adb5bd' } }
       },
       grid: {
@@ -59,14 +59,14 @@ const updateChart = async () => {
         type: 'category',
         data: dates,
         axisLine: { lineStyle: { color: '#dee2e6' } },
-        axisLabel: { color: '#6c757d', fontFamily: 'monospace' },
+        axisLabel: { color: '#6c757d', fontFamily: "'Roboto Mono', monospace" },
         axisTick: { show: false }
       },
       yAxis: {
         type: 'value',
         axisLine: { show: false },
         splitLine: { lineStyle: { color: '#f1f3f5' } },
-        axisLabel: { color: '#6c757d', fontFamily: 'monospace' }
+        axisLabel: { color: '#6c757d', fontFamily: "'Roboto Mono', monospace" }
       },
       series: [
         {
