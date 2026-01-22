@@ -21,6 +21,14 @@
         {{ $t('common.chat') }}
       </router-link>
       <router-link
+        to="/translator"
+        class="px-3 py-2 text-text-sub rounded-md text-sm font-medium transition-colors flex items-center gap-2.5 hover:bg-background-element hover:text-text-main"
+        active-class="bg-primary text-white shadow-sm hover:bg-primary hover:text-white"
+      >
+        <Globe class="w-[18px] h-[18px]" />
+        {{ $t('common.translator') }}
+      </router-link>
+      <router-link
         to="/dashboard"
         class="px-3 py-2 text-text-sub rounded-md text-sm font-medium transition-colors flex items-center gap-2.5 hover:bg-background-element hover:text-text-main"
         active-class="bg-primary text-white shadow-sm hover:bg-primary hover:text-white"
@@ -49,6 +57,6 @@
 </template>
 
 <script setup>
-import { Home, MessageSquare, LayoutDashboard, Box, Settings } from 'lucide-vue-next';
+import { Home, MessageSquare, LayoutDashboard, Box, Settings, Globe } from 'lucide-vue-next';
 </script>
 

@@ -25,6 +25,12 @@
       <div class="flex items-center gap-2 mb-1.5">
         <span class="text-[11px] font-black uppercase tracking-widest text-text-sub font-mono">
           {{ role === 'user' ? $t('chat.you') : $t('chat.ai') }}
+          <span
+            v-if="role === 'assistant' && model"
+            class="ml-1 px-1.5 py-0.5 bg-background-element border border-border rounded text-[9px] lowercase font-bold opacity-70"
+          >
+            {{ model }}
+          </span>
         </span>
         <span class="text-[10px] text-text-sub opacity-50 font-mono">
           {{ formatTime(timestamp) }}
@@ -111,6 +117,10 @@ const props = defineProps({
   isThinking: {
     type: Boolean,
     default: false
+  },
+  model: {
+    type: String,
+    default: ''
   },
   timestamp: {
     type: Number,

@@ -1,11 +1,10 @@
 import { defineStore } from 'pinia'
 
-export const useChatStore = defineStore('chat', {
+export const useTranslatorStore = defineStore('translator', {
   state: () => ({
     messages: [],
     isGenerating: false,
-    currentThinking: '',
-    currentResponse: '',
+    targetLanguage: 'Chinese', // Default target
   }),
   actions: {
     addMessage(role, content, thinking = '', isThinking = false, model = '') {
@@ -33,6 +32,13 @@ export const useChatStore = defineStore('chat', {
     },
     setGenerating(value) {
       this.isGenerating = value
+    },
+    setTargetLanguage(lang) {
+      this.targetLanguage = lang
     }
+  },
+  persist: {
+    key: 'ai-toolbox-translator',
+    paths: ['targetLanguage']
   }
 })

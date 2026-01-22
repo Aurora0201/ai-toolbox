@@ -3,6 +3,7 @@
     "app_name": "AI Toolbox",
     "home": "首页",
     "chat": "对话",
+    "translator": "翻译",
     "dashboard": "仪表盘",
     "models": "模型",
     "settings": "设置",
@@ -23,6 +24,8 @@
     "exploreFeatures": "探索功能",
     "featureChatTitle": "智能对话",
     "featureChatDesc": "立即连接任何本地模型。体验低延迟、私密且安全的 AI 交互。",
+    "featureTranslatorTitle": "神经网络翻译",
+    "featureTranslatorDesc": "利用大语言模型的力量，进行具有上下文感知能力的高质量多语言翻译。",
     "featureModelsTitle": "模型管理",
     "featureModelsDesc": "无缝拉取、更新和管理您的 Ollama 模型库，并配有高级监控。",
     "featureStatsTitle": "用量分析",
@@ -49,6 +52,11 @@
     "confirmClearMsg": "当前会话的所有消息都将被永久删除。",
     "confirmClearBtn": "清空全部",
     "noRunningModels": "未发现运行中的模型"
+  },
+  "translator": {
+    "startTranslation": "开始翻译",
+    "placeholder": "输入要翻译的文本... (Enter 翻译)",
+    "selectToStart": "请选择一个运行中的模型开始翻译"
   },
   "dashboard": {
     "title": "用量分析",
