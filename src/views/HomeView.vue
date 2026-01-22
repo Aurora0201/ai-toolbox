@@ -52,6 +52,16 @@
       </FeatureCard>
 
       <FeatureCard
+        :title="$t('home.featureTranslatorTitle')"
+        :description="$t('home.featureTranslatorDesc')"
+        @click="router.push('/translator')"
+      >
+        <template #icon>
+          <Globe class="w-8 h-8 text-primary" />
+        </template>
+      </FeatureCard>
+
+      <FeatureCard
         :title="$t('home.featureModelsTitle')"
         :description="$t('home.featureModelsDesc')"
         @click="router.push('/models')"
@@ -98,7 +108,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import FeatureCard from '../components/common/FeatureCard.vue'
-import { MessageSquare, Box, ChartBar, Settings } from 'lucide-vue-next'
+import { MessageSquare, Box, ChartBar, Settings, Globe } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()

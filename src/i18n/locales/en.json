@@ -3,6 +3,7 @@
     "app_name": "AI Toolbox",
     "home": "Home",
     "chat": "Chat",
+    "translator": "Translator",
     "dashboard": "Dashboard",
     "models": "Models",
     "settings": "Settings",
@@ -23,6 +24,8 @@
     "exploreFeatures": "EXPLORE FEATURES",
     "featureChatTitle": "Intelligent Chat",
     "featureChatDesc": "Connect with any local model instantly. Experience low-latency, private, and secure AI interactions.",
+    "featureTranslatorTitle": "Neural Translator",
+    "featureTranslatorDesc": "Leverage LLM power for high-quality translations across multiple languages with context awareness.",
     "featureModelsTitle": "Model Management",
     "featureModelsDesc": "Seamlessly pull, update, and manage your Ollama model library with advanced monitoring.",
     "featureStatsTitle": "Usage Analytics",
@@ -49,6 +52,11 @@
     "confirmClearMsg": "All messages in this session will be permanently deleted.",
     "confirmClearBtn": "Clear All",
     "noRunningModels": "No running models found"
+  },
+  "translator": {
+    "startTranslation": "Start Translation",
+    "placeholder": "Enter text to translate... (Enter to translate)",
+    "selectToStart": "Select a running model to start translation"
   },
   "dashboard": {
     "title": "Usage Analytics",

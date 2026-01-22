@@ -7,14 +7,14 @@
     >
       <div class="max-w-3xl mx-auto w-full min-h-full flex flex-col">
         <div
-          v-if="chatStore.messages.length === 0"
+          v-if="translatorStore.messages.length === 0"
           class="flex-1 flex flex-col items-center justify-center opacity-40 select-none"
         >
           <div class="text-6xl mb-4 animate-bounce">
-            💬
+            🌐
           </div>
           <h2 class="text-xl font-black uppercase tracking-[0.2em] text-text-sub">
-            {{ $t('chat.startConversation') }}
+            {{ $t('translator.startTranslation') }}
           </h2>
           <p class="text-sm mt-2 font-mono">
             {{ $t('chat.noHistoryWarning') }}
@@ -23,10 +23,10 @@
 
         <template v-else>
           <ChatMessage
-            v-for="(msg, index) in chatStore.messages"
+            v-for="(msg, index) in translatorStore.messages"
             :key="index"
             v-bind="msg"
-            :is-generating="chatStore.isGenerating && index === chatStore.messages.length - 1"
+            :is-generating="translatorStore.isGenerating && index === translatorStore.messages.length - 1"
           />
         </template>
       </div>
@@ -37,13 +37,14 @@
     
     <div class="absolute bottom-0 left-0 right-0 p-6 pointer-events-none z-20">
       <div class="w-full flex justify-center pointer-events-auto">
-        <ChatInput
+        <TranslatorInput
           v-model:selected-model="modelStore.selectedModel"
+          v-model:target-language="translatorStore.targetLanguage"
           :running-models="modelStore.runningModels"
-          :is-generating="chatStore.isGenerating"
-          :messages-count="chatStore.messages.length"
+          :is-generating="translatorStore.isGenerating"
+          :messages-count="translatorStore.messages.length"
           :disabled="!modelStore.selectedModel"
-          :placeholder="modelStore.selectedModel ? $t('chat.placeholder') : $t('chat.selectToStart')"
+          :placeholder="modelStore.selectedModel ? $t('translator.placeholder') : $t('translator.selectToStart')"
           @send="handleSend"
           @stop="handleStop"
           @clear="handleClear"
@@ -57,16 +58,16 @@
 import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import { useModelStore } from '../store/models'
 import { useSettingsStore } from '../store/settings'
-import { useChatStore } from '../store/chat'
+import { useTranslatorStore } from '../store/translator'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import ChatMessage from '../components/chat/ChatMessage.vue'
-import ChatInput from '../components/chat/ChatInput.vue'
+import TranslatorInput from '../components/translator/TranslatorInput.vue'
 import { useI18n } from 'vue-i18n'
 
 const modelStore = useModelStore()
 const settingsStore = useSettingsStore()
-const chatStore = useChatStore()
+const translatorStore = useTranslatorStore()
 const { t } = useI18n()
 
 const messagesRef = ref(null)
@@ -84,14 +85,15 @@ const scrollToBottom = async (force = false) => {
   }
 }
 
-const handleSend = async ({ text, images }) => {
-  if (chatStore.isGenerating) return
+const handleSend = async ({ text }) => {
+  if (translatorStore.isGenerating) return
   
-  chatStore.addMessage('user', text)
+  // Show user's original text
+  translatorStore.addMessage('user', text)
   scrollToBottom(true)
   
-  chatStore.setGenerating(true)
-  chatStore.addMessage('assistant', '', '', false, modelStore.selectedModel) // Add empty assistant message for streaming
+  translatorStore.setGenerating(true)
+  translatorStore.addMessage('assistant', '', '', false, modelStore.selectedModel) // Add empty assistant message for streaming
   
   let accumulatedContent = ''
   let accumulatedThinking = ''
@@ -105,10 +107,9 @@ const handleSend = async ({ text, images }) => {
       const payload = event.payload
       
       if (payload.done) {
-        // Final update to ensure content/thinking and status (is_thinking: false) are captured
         if (payload.content) accumulatedContent += payload.content
         if (payload.thinking) accumulatedThinking += payload.thinking
-        chatStore.updateLastMessage(accumulatedContent, accumulatedThinking, false)
+        translatorStore.updateLastMessage(accumulatedContent, accumulatedThinking, false)
 
         // Record usage
         const today = new Date().toISOString().split('T')[0]
@@ -123,7 +124,7 @@ const handleSend = async ({ text, images }) => {
         })
         
         isProcessing = false
-        chatStore.setGenerating(false)
+        translatorStore.setGenerating(false)
         if (unlistenFn) {
             unlistenFn()
             unlistenFn = null
@@ -131,35 +132,41 @@ const handleSend = async ({ text, images }) => {
         return
       }
       
-      // Append new chunks from backend
       if (payload.content) accumulatedContent += payload.content
       if (payload.thinking) accumulatedThinking += payload.thinking
       
-      chatStore.updateLastMessage(accumulatedContent, accumulatedThinking, payload.is_thinking)
+      translatorStore.updateLastMessage(accumulatedContent, accumulatedThinking, payload.is_thinking)
       scrollToBottom()
     })
 
     // Prepare generation options
     const options = { ...settingsStore.generationParameters }
-    // Clean up special values (-1 means default/random)
     if (options.num_predict === -1) options.num_predict = undefined
     if (options.seed === -1) options.seed = undefined
+
+    // Construct Translation Prompt
+    // Note: This is a simple prompt strategy. For better results, one might use system prompts if the model supports it.
+    // Here we wrap the request in a clear instruction.
+    const prompt = `Translate the following text into ${translatorStore.targetLanguage}. Do not provide any explanations, notes, or introductions. Just provide the translated text.
+
+Text to translate:
+${text}`
 
     // Start generation via Backend Command
     await invoke('generate_completion', {
       request: {
         model: modelStore.selectedModel,
-        prompt: text,
-        images: images.map(img => img.split(',')[1]), // Strip data:image/xxx;base64,
+        prompt: prompt,
+        images: [],
         options: options,
         stream: true
       }
     })
 
   } catch (error) {
-    console.error('Generation failed:', error)
-    chatStore.updateLastMessage(t('chat.errorMessage') + error)
-    chatStore.setGenerating(false)
+    console.error('Translation failed:', error)
+    translatorStore.updateLastMessage(t('chat.errorMessage') + error)
+    translatorStore.setGenerating(false)
     if (unlistenFn) {
         unlistenFn()
         unlistenFn = null
@@ -169,24 +176,21 @@ const handleSend = async ({ text, images }) => {
 
 const handleStop = async () => {
   isProcessing = false
-  chatStore.setGenerating(false)
+  translatorStore.setGenerating(false)
   if (unlistenFn) {
       unlistenFn()
       unlistenFn = null
   }
-  // Optional: Call backend to kill process if needed, 
-  // but just stopping the listener is enough for UI responsiveness
-  // Real cancellation would require a backend abort handle which is complex with current structure
   
-  chatStore.updateLastMessage(chatStore.messages[chatStore.messages.length - 1].content + `\n\n*[${t('chat.stopped')}]*`, chatStore.messages[chatStore.messages.length - 1].thinking)
+  translatorStore.updateLastMessage(translatorStore.messages[translatorStore.messages.length - 1].content + `\n\n*[${t('chat.stopped')}]*`, translatorStore.messages[translatorStore.messages.length - 1].thinking)
 }
 
 const handleClear = () => {
-  chatStore.clearMessages()
+  translatorStore.clearMessages()
 }
 
 // Watch for messages change to scroll
-watch(() => chatStore.messages.length, () => {
+watch(() => translatorStore.messages.length, () => {
   scrollToBottom(true)
 })
 
@@ -221,7 +225,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Ensure smooth transitions for layout */
 .flex-1 {
   scrollbar-gutter: stable;
 }
