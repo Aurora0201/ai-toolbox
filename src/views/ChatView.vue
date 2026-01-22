@@ -1,5 +1,6 @@
 <template>
   <div class="flex flex-col h-full overflow-hidden bg-background-app relative">
+    <BackgroundEffect />
     <!-- Messages Container -->
     <div
       ref="messagesRef"
@@ -8,17 +9,13 @@
       <div class="max-w-3xl mx-auto w-full min-h-full flex flex-col">
         <div
           v-if="chatStore.messages.length === 0"
-          class="flex-1 flex flex-col items-center justify-center opacity-40 select-none"
+          class="flex-1 flex flex-col"
         >
-          <div class="text-6xl mb-4 animate-bounce">
-            💬
-          </div>
-          <h2 class="text-xl font-black uppercase tracking-[0.2em] text-text-sub">
-            {{ $t('chat.startConversation') }}
-          </h2>
-          <p class="text-sm mt-2 font-mono">
-            {{ $t('chat.noHistoryWarning') }}
-          </p>
+          <EmptyState
+            :icon="MessageSquareDashed"
+            :title="$t('chat.startConversation')"
+            :description="$t('chat.noHistoryWarning')"
+          />
         </div>
 
         <template v-else>
@@ -62,6 +59,9 @@ import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import ChatMessage from '../components/chat/ChatMessage.vue'
 import ChatInput from '../components/chat/ChatInput.vue'
+import BackgroundEffect from '../components/common/BackgroundEffect.vue'
+import EmptyState from '../components/common/EmptyState.vue'
+import { MessageSquareDashed } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 const modelStore = useModelStore()
