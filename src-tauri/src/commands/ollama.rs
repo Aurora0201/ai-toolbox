@@ -1,7 +1,7 @@
 use tauri::{State, Window, Emitter};
-use crate::AppState;
-use crate::ollama::{Model, RunningModel, GenerateRequest};
-use crate::error::AppResult;
+use crate::app::state::AppState;
+use crate::domain::models::{Model, RunningModel, GenerateRequest};
+use crate::domain::error::AppResult;
 use log::{info, debug};
 
 /// Command to fetch all available models from Ollama.
