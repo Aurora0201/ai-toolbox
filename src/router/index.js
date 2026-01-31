@@ -4,32 +4,32 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('../views/HomeView.vue')
+    component: () => import('../features/home/HomeView.vue')
   },
   {
     path: '/chat',
     name: 'Chat',
-    component: () => import('../views/ChatView.vue')
+    component: () => import('../features/chat/ChatView.vue')
   },
   {
     path: '/translator',
     name: 'Translator',
-    component: () => import('../views/TranslatorView.vue')
+    component: () => import('../features/translator/TranslatorView.vue')
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('../views/DashboardView.vue')
+    component: () => import('../features/dashboard/DashboardView.vue')
   },
   {
     path: '/models',
     name: 'Models',
-    component: () => import('../views/ModelsView.vue')
+    component: () => import('../features/models/ModelsView.vue')
   },
   {
     path: '/settings',
     name: 'Settings',
-    component: () => import('../views/SettingsView.vue')
+    component: () => import('../features/settings/SettingsView.vue')
   }
 ]
 

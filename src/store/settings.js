@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
-import { invoke } from '@tauri-apps/api/core'
+import { systemApi } from '../api/system'
+import { ollamaApi } from '../api/ollama'
+import { dbApi } from '../api/db'
 import i18n from '../i18n'
 
 /**
@@ -57,7 +59,7 @@ export const useSettingsStore = defineStore('settings', {
     async setLogLevel(level) {
       this.logLevel = level
       try {
-        await invoke('set_log_level', { level })
+        await systemApi.setLogLevel(level)
       } catch (error) {
         console.error('Failed to set log level:', error)
       }
@@ -101,7 +103,7 @@ export const useSettingsStore = defineStore('settings', {
     async setOllamaEndpoint(endpoint) {
       this.ollamaEndpoint = endpoint
       try {
-        await invoke('update_ollama_config', { endpoint })
+        await ollamaApi.updateConfig(endpoint)
       } catch (error) {
         console.error('Failed to update Ollama config in backend:', error)
       }
@@ -113,10 +115,45 @@ export const useSettingsStore = defineStore('settings', {
      */
     async syncToBackend() {
       try {
-        await invoke('update_ollama_config', { endpoint: this.ollamaEndpoint })
+        await ollamaApi.updateConfig(this.ollamaEndpoint)
       } catch (error) {
         console.error('Failed to sync settings to backend:', error)
       }
+    },
+
+    /**
+     * Opens the log directory.
+     */
+    async openLogs() {
+      await systemApi.openLogDir()
+    },
+
+    /**
+     * Tests connection to a specific endpoint.
+     * Temporarily updates config, checks, and restores if needed.
+     */
+    async testConnection(endpoint) {
+      const current = this.ollamaEndpoint
+      try {
+        await ollamaApi.updateConfig(endpoint)
+        await ollamaApi.checkConnection()
+        return true
+      } finally {
+        // Restore original if we were just testing a different one
+        if (endpoint !== current) {
+           // If we are just testing, we might want to revert? 
+           // But wait, the View logic says "restore saved endpoint in backend if it wasn't saved".
+           // Here we assume we revert to what's in the store.
+           await ollamaApi.updateConfig(current)
+        }
+      }
+    },
+
+    /**
+     * Clears all application data.
+     */
+    async clearData() {
+      await dbApi.clearAllData()
     }
   },
 

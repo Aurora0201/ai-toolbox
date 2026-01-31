@@ -17,5 +17,5 @@
 /**
  * Models view dedicated to managing the local Ollama model library.
  */
-import ModelManager from '../components/ModelManager.vue'
+import ModelManager from './components/ModelManager.vue'
 </script>

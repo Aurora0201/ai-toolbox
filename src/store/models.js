@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
-import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import i18n from '../i18n'
+import { ollamaApi } from '../api/ollama'
+import { systemApi } from '../api/system'
 
 /**
  * Pinia store for managing Ollama models, running processes, and system resource info.
@@ -23,7 +24,7 @@ export const useModelStore = defineStore('models', {
     async fetchModels() {
       this.loading = true
       try {
-        this.models = await invoke('get_models')
+        this.models = await ollamaApi.getModels()
       } catch (error) {
         console.error('Failed to fetch models:', error)
       } finally {
@@ -36,7 +37,7 @@ export const useModelStore = defineStore('models', {
      */
     async fetchGpuInfo() {
       try {
-        const info = await invoke('get_gpu_info')
+        const info = await systemApi.getGpuInfo()
         // Backend returns MB, convert to Bytes for consistent formatting in frontend
         this.gpuInfo = {
           name: info.name,
@@ -53,7 +54,7 @@ export const useModelStore = defineStore('models', {
      */
     async fetchRunningModels() {
       try {
-        this.runningModels = await invoke('get_running_models')
+        this.runningModels = await ollamaApi.getRunningModels()
       } catch (error) {
         console.error('Failed to fetch running models:', error)
       }
@@ -80,7 +81,7 @@ export const useModelStore = defineStore('models', {
     async pullModel(name) {
       this.pullProgress = { status: i18n.global.t('common.loading'), completed: 0, total: 0, percentage: 0 }
       try {
-        await invoke('pull_model', { name })
+        await ollamaApi.pullModel(name)
         await this.fetchModels()
       } catch (error) {
         console.error('Failed to pull model:', error)
@@ -96,7 +97,7 @@ export const useModelStore = defineStore('models', {
      */
     async deleteModel(name) {
       try {
-        await invoke('delete_model', { name })
+        await ollamaApi.deleteModel(name)
         await this.fetchModels()
       } catch (error) {
         console.error('Failed to delete model:', error)
@@ -110,7 +111,7 @@ export const useModelStore = defineStore('models', {
      */
     async startModel(name) {
       try {
-        await invoke('start_model', { name })
+        await ollamaApi.startModel(name)
         await this.fetchRunningModels()
       } catch (error) {
         console.error('Failed to start model:', error)
@@ -124,7 +125,7 @@ export const useModelStore = defineStore('models', {
      */
     async unloadModel(name) {
       try {
-        await invoke('unload_model', { name })
+        await ollamaApi.unloadModel(name)
         await this.fetchRunningModels()
       } catch (error) {
         console.error('Failed to unload model:', error)

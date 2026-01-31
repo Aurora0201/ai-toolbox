@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { useToast } from '../composables/useToast'
+import { useToast } from '../../composables/useToast'
 import ToastNotification from './ToastNotification.vue'
 
 const props = defineProps({

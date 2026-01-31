@@ -112,7 +112,7 @@ import {
   ArrowUpRight 
 } from 'lucide-vue-next'
 import gsap from 'gsap'
-import BackgroundEffect from '../components/common/BackgroundEffect.vue'
+import BackgroundEffect from '../../shared/components/BackgroundEffect.vue'
 
 const router = useRouter()
 const { t } = useI18n()

@@ -19,7 +19,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import * as echarts from 'echarts'
-import { invoke } from '@tauri-apps/api/core'
+import { dbApi } from '../../../api/db'
 import { useI18n } from 'vue-i18n'
 
 /**
@@ -34,7 +34,7 @@ let chart = null
  */
 const updateChart = async () => {
   try {
-    const stats = await invoke('get_token_stats')
+    const stats = await dbApi.getTokenStats()
     const dates = stats.map(s => s.date)
     const promptTokens = stats.map(s => s.prompt_tokens)
     const completionTokens = stats.map(s => s.completion_tokens)

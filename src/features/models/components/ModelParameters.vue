@@ -158,7 +158,7 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue'
-import { useSettingsStore } from '../../store/settings'
+import { useSettingsStore } from '../../../store/settings'
 import { Settings2, ChevronRight } from 'lucide-vue-next'
 
 const settingsStore = useSettingsStore()

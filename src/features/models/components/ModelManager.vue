@@ -28,12 +28,12 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useModelStore } from '../store/models'
-import { useToast } from '../composables/useToast'
-import { useConfirm } from '../composables/useConfirm'
-import ModelList from './models/ModelList.vue'
-import RunningProcesses from './models/RunningProcesses.vue'
-import ModelParameters from './models/ModelParameters.vue'
+import { useModelStore } from '../../../store/models'
+import { useToast } from '../../../composables/useToast'
+import { useConfirm } from '../../../composables/useConfirm'
+import ModelList from './ModelList.vue'
+import RunningProcesses from './RunningProcesses.vue'
+import ModelParameters from './ModelParameters.vue'
 import { useI18n } from 'vue-i18n'
 
 /**

@@ -51,8 +51,8 @@
  * Dashboard view providing detailed usage analytics and statistics.
  */
 import { ref, onMounted } from 'vue'
-import { invoke } from '@tauri-apps/api/core'
-import TokenChart from '../components/TokenChart.vue'
+import { dbApi } from '../../api/db'
+import TokenChart from './components/TokenChart.vue'
 
 const totalPrompt = ref(0)
 const totalCompletion = ref(0)
@@ -63,7 +63,7 @@ const activeDays = ref(0)
  */
 const fetchStats = async () => {
   try {
-    const stats = await invoke('get_token_stats')
+    const stats = await dbApi.getTokenStats()
     totalPrompt.value = stats.reduce((acc, curr) => acc + curr.prompt_tokens, 0).toLocaleString()
     totalCompletion.value = stats.reduce((acc, curr) => acc + curr.completion_tokens, 0).toLocaleString()
     activeDays.value = stats.length
