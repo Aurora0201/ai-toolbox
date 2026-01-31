@@ -1,11 +1,11 @@
-use reqwest::Client;
-use futures_util::StreamExt;
-use std::sync::Mutex;
 use crate::domain::error::AppResult;
 use crate::domain::models::{
-    Model, TagsResponse, RunningModel, ProcessResponse, GenerateRequest, 
-    GenerateResponse, ChatResponse, PullProgress
+    ChatResponse, GenerateRequest, GenerateResponse, Model, ProcessResponse, PullProgress,
+    RunningModel, TagsResponse,
 };
+use futures_util::StreamExt;
+use reqwest::Client;
+use std::sync::Mutex;
 
 /// Client for interacting with the Ollama API.
 pub struct OllamaClient {
@@ -31,7 +31,8 @@ impl OllamaClient {
 
     /// Get the current base URL.
     fn get_base_url(&self) -> String {
-        self.base_url.lock()
+        self.base_url
+            .lock()
             .map(|url| url.clone())
             .unwrap_or_else(|_| "http://localhost:11434".to_string())
     }
@@ -57,37 +58,44 @@ impl OllamaClient {
     /// Delete an installed model.
     pub async fn delete_model(&self, name: String) -> AppResult<()> {
         let url = format!("{}/api/delete", self.get_base_url());
-        self.client.delete(url)
+        self.client
+            .delete(url)
             .json(&serde_json::json!({ "name": name }))
-            .send().await?;
+            .send()
+            .await?;
         Ok(())
     }
 
     /// Unload a model from memory (VRAM) by setting its keep_alive to 0.
     pub async fn unload_model(&self, name: String) -> AppResult<()> {
         let url = format!("{}/api/generate", self.get_base_url());
-        self.client.post(url)
+        self.client
+            .post(url)
             .json(&serde_json::json!({
                 "model": name,
                 "keep_alive": 0
             }))
-            .send().await?;
+            .send()
+            .await?;
         Ok(())
     }
-    
+
     /// Pull (download) a new model from the Ollama library with progress reporting.
-    pub async fn pull_model<F, Fut>(&self, name: String, on_progress: F) -> AppResult<()> 
-    where 
+    pub async fn pull_model<F, Fut>(&self, name: String, on_progress: F) -> AppResult<()>
+    where
         F: Fn(PullProgress) -> Fut,
         Fut: std::future::Future<Output = ()>,
     {
         let url = format!("{}/api/pull", self.get_base_url());
-        let resp = self.client.post(url)
+        let resp = self
+            .client
+            .post(url)
             .json(&serde_json::json!({ "name": name, "stream": true }))
-            .send().await?;
+            .send()
+            .await?;
 
         if !resp.status().is_success() {
-             return Err(anyhow::anyhow!("Ollama API Error: {}", resp.status()).into());
+            return Err(anyhow::anyhow!("Ollama API Error: {}", resp.status()).into());
         }
 
         let mut stream = resp.bytes_stream();
@@ -97,14 +105,14 @@ impl OllamaClient {
             let cursor = std::io::Cursor::new(chunk);
             let deserializer = serde_json::Deserializer::from_reader(cursor);
             let iter = deserializer.into_iter::<PullProgress>();
-            
+
             for res in iter {
                 match res {
                     Ok(progress) => {
-                         if let Some(err_msg) = &progress.error {
-                             return Err(anyhow::anyhow!("Pull failed: {}", err_msg).into());
-                         }
-                         on_progress(progress).await;
+                        if let Some(err_msg) = &progress.error {
+                            return Err(anyhow::anyhow!("Pull failed: {}", err_msg).into());
+                        }
+                        on_progress(progress).await;
                     }
                     Err(e) => {
                         log::warn!("Failed to parse pull progress chunk: {}", e);
@@ -118,28 +126,32 @@ impl OllamaClient {
     /// Start (preload) a model by sending an empty generate request.
     pub async fn start_model(&self, name: String) -> AppResult<()> {
         let url = format!("{}/api/generate", self.get_base_url());
-        self.client.post(url)
+        self.client
+            .post(url)
             .json(&serde_json::json!({
                 "model": name,
                 "keep_alive": -1 // Keep loaded indefinitely
             }))
-            .send().await?;
+            .send()
+            .await?;
         Ok(())
     }
 
     /// Generate a completion for a prompt with streaming support and tag parsing.
-    pub async fn generate_completion<F, Fut>(&self, request: GenerateRequest, on_event: F) -> AppResult<()>
+    pub async fn generate_completion<F, Fut>(
+        &self,
+        request: GenerateRequest,
+        on_event: F,
+    ) -> AppResult<()>
     where
         F: Fn(ChatResponse) -> Fut,
         Fut: std::future::Future<Output = ()>,
     {
         let url = format!("{}/api/generate", self.get_base_url());
-        let resp = self.client.post(url)
-            .json(&request)
-            .send().await?;
+        let resp = self.client.post(url).json(&request).send().await?;
 
         let mut stream = resp.bytes_stream();
-        
+
         // State for the tag parser
         let mut buffer = String::new();
         let mut in_think_block = false;
@@ -169,21 +181,23 @@ impl OllamaClient {
                         done: true,
                         prompt_eval_count: response.prompt_eval_count.unwrap_or(0),
                         eval_count: response.eval_count.unwrap_or(0),
-                    }).await;
+                    })
+                    .await;
                     return Ok(());
                 }
 
                 // Handle direct 'thinking' field from Ollama (if present)
                 if let Some(think_str) = &response.thinking {
                     if !think_str.is_empty() {
-                            on_event(ChatResponse {
+                        on_event(ChatResponse {
                             content: "".to_string(),
                             thinking: think_str.clone(),
                             is_thinking: true,
                             done: false,
                             prompt_eval_count: 0,
                             eval_count: 0,
-                        }).await;
+                        })
+                        .await;
                     }
                 }
 
@@ -197,7 +211,7 @@ impl OllamaClient {
 
                 loop {
                     let current_slice = &buffer[buffer_cleared_until..];
-                    
+
                     if in_think_block {
                         // Look for closing tag </think>
                         if let Some(idx) = current_slice.find("</think>") {
@@ -208,13 +222,13 @@ impl OllamaClient {
                             in_think_block = false;
                         } else {
                             // No closing tag found.
-                            // We can safely emit everything EXCEPT the last few chars 
+                            // We can safely emit everything EXCEPT the last few chars
                             // which might be a partial </think> tag.
                             let mut safe_len = current_slice.len().saturating_sub(7); // </think is 7 chars (partial)
                             while !current_slice.is_char_boundary(safe_len) {
                                 safe_len -= 1;
                             }
-                            
+
                             if safe_len > 0 {
                                 processed_thinking.push_str(&current_slice[..safe_len]);
                                 buffer_cleared_until += safe_len;
@@ -253,14 +267,15 @@ impl OllamaClient {
 
                 // Emit if we have something
                 if !processed_content.is_empty() || !processed_thinking.is_empty() {
-                        on_event(ChatResponse {
+                    on_event(ChatResponse {
                         content: processed_content,
                         thinking: processed_thinking,
                         is_thinking: in_think_block || response.thinking.is_some(),
                         done: false,
                         prompt_eval_count: 0,
                         eval_count: 0,
-                    }).await;
+                    })
+                    .await;
                 }
             }
         }

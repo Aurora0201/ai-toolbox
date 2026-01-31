@@ -1,19 +1,19 @@
-mod domain;
+mod app;
 mod clients;
+mod commands;
+mod domain;
 mod repositories;
 mod services;
-mod commands;
-mod app;
 
+use chrono::Local;
+use log::{info, LevelFilter};
 use std::sync::Mutex;
 use tauri::Manager;
 use tauri_plugin_log::{Target, TargetKind};
-use log::{LevelFilter, info};
-use chrono::Local;
 
-use clients::ollama::OllamaClient;
-use app::state::AppState;
 use app::logging::cleanup_old_logs;
+use app::state::AppState;
+use clients::ollama::OllamaClient;
 use repositories::connection::init_db;
 
 pub use domain::error::{AppError, AppResult};
@@ -24,34 +24,41 @@ pub fn run() {
     let log_filename = Local::now().format("%Y-%m-%d.log").to_string();
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_log::Builder::new()
-            .targets([
-                Target::new(TargetKind::Stdout),
-                Target::new(TargetKind::LogDir { file_name: Some(log_filename) }),
-                Target::new(TargetKind::Webview),
-            ])
-            // 1. Global Default Level Strategy
-            .level(if cfg!(debug_assertions) { 
-                LevelFilter::Debug 
-            } else { 
-                LevelFilter::Info 
-            })
-            // 2. Crate-specific Noise Filtering (White-listing / Black-listing approach)
-            // Silence noisy libraries by forcing them to higher severity levels
-            .level_for("tauri", LevelFilter::Info)
-            .level_for("hyper", LevelFilter::Warn)
-            .level_for("tao", LevelFilter::Warn)
-            .level_for("wry", LevelFilter::Warn)
-            .level_for("reqwest", LevelFilter::Warn)
-            .level_for("html5gum", LevelFilter::Warn)
-            // Ensure our own crate logs are visible (matches global default)
-            .level_for("ai_toolbox_lib", if cfg!(debug_assertions) { 
-                LevelFilter::Debug 
-            } else { 
-                LevelFilter::Info 
-            })
-            .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
-            .build())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .targets([
+                    Target::new(TargetKind::Stdout),
+                    Target::new(TargetKind::LogDir {
+                        file_name: Some(log_filename),
+                    }),
+                    Target::new(TargetKind::Webview),
+                ])
+                // 1. Global Default Level Strategy
+                .level(if cfg!(debug_assertions) {
+                    LevelFilter::Debug
+                } else {
+                    LevelFilter::Info
+                })
+                // 2. Crate-specific Noise Filtering (White-listing / Black-listing approach)
+                // Silence noisy libraries by forcing them to higher severity levels
+                .level_for("tauri", LevelFilter::Info)
+                .level_for("hyper", LevelFilter::Warn)
+                .level_for("tao", LevelFilter::Warn)
+                .level_for("wry", LevelFilter::Warn)
+                .level_for("reqwest", LevelFilter::Warn)
+                .level_for("html5gum", LevelFilter::Warn)
+                // Ensure our own crate logs are visible (matches global default)
+                .level_for(
+                    "ai_toolbox_lib",
+                    if cfg!(debug_assertions) {
+                        LevelFilter::Debug
+                    } else {
+                        LevelFilter::Info
+                    },
+                )
+                .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
+                .build(),
+        )
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             info!("Application starting up");
@@ -63,7 +70,7 @@ pub fn run() {
 
             // Initialize database and setup state
             let conn = init_db(app.handle())?;
-            
+
             app.manage(AppState {
                 db: Mutex::new(conn),
                 ollama: OllamaClient::new("http://localhost:11434".to_string()),

@@ -1,5 +1,5 @@
-use thiserror::Error;
 use log::error;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum AppError {

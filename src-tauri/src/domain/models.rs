@@ -80,7 +80,7 @@ pub struct GenerateResponse {
     pub model: String,
     pub created_at: String,
     pub response: String,
-    pub thinking: Option<String>, 
+    pub thinking: Option<String>,
     pub done: bool,
     pub done_reason: Option<String>,
     pub context: Option<Vec<i64>>,

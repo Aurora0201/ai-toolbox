@@ -1,4 +1,4 @@
-use crate::domain::error::{AppResult, AppError};
+use crate::domain::error::{AppError, AppResult};
 
 #[derive(serde::Serialize, Clone, Default)]
 pub struct GpuInfo {
@@ -27,7 +27,7 @@ pub async fn get_gpu_info() -> AppResult<GpuInfo> {
                 } | ConvertTo-Json
             }
         "#;
-        
+
         let output = tokio::process::Command::new("powershell")
             .args(["-NoProfile", "-Command", ps_cmd])
             .output()

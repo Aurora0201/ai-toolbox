@@ -1,15 +1,18 @@
-use tauri::State;
 use crate::app::state::AppState;
-use crate::repositories::stats;
+use crate::domain::error::{AppError, AppResult};
 use crate::domain::models::TokenStat;
-use crate::domain::error::{AppResult, AppError};
+use crate::repositories::stats;
 use log::{debug, warn};
+use tauri::State;
 
 /// Command to retrieve token usage statistics from the database.
 #[tauri::command]
 pub fn get_token_stats(state: State<'_, AppState>) -> AppResult<Vec<TokenStat>> {
     debug!("Fetching token statistics");
-    let conn = state.db.lock().map_err(|e| AppError::Unknown(e.to_string()))?;
+    let conn = state
+        .db
+        .lock()
+        .map_err(|e| AppError::Unknown(e.to_string()))?;
     stats::get_aggregated_stats(&conn)
 }
 
@@ -22,8 +25,14 @@ pub fn record_tokens(
     completion: i64,
     model: String,
 ) -> AppResult<()> {
-    debug!("Recording token usage - Model: {}, Date: {}, Prompt: {}, Completion: {}", model, date, prompt, completion);
-    let conn = state.db.lock().map_err(|e| AppError::Unknown(e.to_string()))?;
+    debug!(
+        "Recording token usage - Model: {}, Date: {}, Prompt: {}, Completion: {}",
+        model, date, prompt, completion
+    );
+    let conn = state
+        .db
+        .lock()
+        .map_err(|e| AppError::Unknown(e.to_string()))?;
     stats::record_tokens(&conn, &date, prompt, completion, &model)
 }
 
@@ -31,6 +40,9 @@ pub fn record_tokens(
 #[tauri::command]
 pub fn clear_all_data(state: State<'_, AppState>) -> AppResult<()> {
     warn!("Clearing all token statistics database");
-    let conn = state.db.lock().map_err(|e| AppError::Unknown(e.to_string()))?;
+    let conn = state
+        .db
+        .lock()
+        .map_err(|e| AppError::Unknown(e.to_string()))?;
     stats::clear_database(&conn)
 }

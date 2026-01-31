@@ -1,8 +1,8 @@
-use tauri::{State, Window, Emitter};
 use crate::app::state::AppState;
-use crate::domain::models::{Model, RunningModel, GenerateRequest};
 use crate::domain::error::AppResult;
-use log::{info, debug};
+use crate::domain::models::{GenerateRequest, Model, RunningModel};
+use log::{debug, info};
+use tauri::{Emitter, State, Window};
 
 /// Command to fetch all available models from Ollama.
 #[tauri::command]
@@ -26,19 +26,18 @@ pub async fn delete_model(state: State<'_, AppState>, name: String) -> AppResult
 
 /// Command to pull a new model from Ollama.
 #[tauri::command]
-pub async fn pull_model(
-    state: State<'_, AppState>, 
-    window: Window,
-    name: String
-) -> AppResult<()> {
+pub async fn pull_model(state: State<'_, AppState>, window: Window, name: String) -> AppResult<()> {
     info!("Starting pull for model: {}", name);
-    state.ollama.pull_model(name.clone(), |progress| {
-        let window_clone = window.clone();
-        async move {
-            let _ = window_clone.emit("pull-progress", progress);
-        }
-    }).await?;
-    
+    state
+        .ollama
+        .pull_model(name.clone(), |progress| {
+            let window_clone = window.clone();
+            async move {
+                let _ = window_clone.emit("pull-progress", progress);
+            }
+        })
+        .await?;
+
     info!("Successfully pulled model: {}", name);
     Ok(())
 }
@@ -65,12 +64,15 @@ pub async fn generate_completion(
     request: GenerateRequest,
 ) -> AppResult<()> {
     info!("Generating completion for model: {}", request.model);
-    state.ollama.generate_completion(request, |response| {
-        let window_clone = window.clone();
-        async move {
-            let _ = window_clone.emit("chat-response", response);
-        }
-    }).await?;
+    state
+        .ollama
+        .generate_completion(request, |response| {
+            let window_clone = window.clone();
+            async move {
+                let _ = window_clone.emit("chat-response", response);
+            }
+        })
+        .await?;
     Ok(())
 }
 

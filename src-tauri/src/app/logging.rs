@@ -1,14 +1,16 @@
-use tauri::Manager;
 use crate::domain::error::{AppError, AppResult};
+use chrono::{Duration, Local, NaiveDate};
 use log::{info, warn};
-use chrono::{Local, Duration, NaiveDate};
 use std::fs;
+use tauri::Manager;
 
 /// Cleans up log files older than 7 days in the application log directory.
 pub fn cleanup_old_logs(app: &tauri::AppHandle) -> AppResult<()> {
-    let log_dir = app.path().app_log_dir()
+    let log_dir = app
+        .path()
+        .app_log_dir()
         .map_err(|e| AppError::Io(format!("Failed to get log dir: {}", e)))?;
-    
+
     if !log_dir.exists() {
         return Ok(());
     }

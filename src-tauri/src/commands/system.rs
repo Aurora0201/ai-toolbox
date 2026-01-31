@@ -1,4 +1,4 @@
-use crate::domain::error::{AppResult, AppError};
+use crate::domain::error::{AppError, AppResult};
 use crate::services::system::{self as system_service, GpuInfo};
 use log::debug;
 use tauri::Manager;
@@ -15,17 +15,19 @@ pub async fn set_log_level(level: String) -> AppResult<()> {
         "trace" => log::LevelFilter::Trace,
         _ => log::LevelFilter::Info,
     };
-    
+
     debug!("Setting log level to: {:?}", level_filter);
     log::set_max_level(level_filter);
-    
+
     Ok(())
 }
 
 /// Command to open the application log directory in the file explorer.
 #[tauri::command]
 pub async fn open_log_dir(app: tauri::AppHandle) -> AppResult<()> {
-    let log_path = app.path().app_log_dir()
+    let log_path = app
+        .path()
+        .app_log_dir()
         .map_err(|e| AppError::Io(format!("Failed to get log dir: {}", e)))?;
 
     #[cfg(target_os = "windows")]
@@ -35,7 +37,7 @@ pub async fn open_log_dir(app: tauri::AppHandle) -> AppResult<()> {
             .spawn()
             .map_err(|e| AppError::Io(format!("Failed to open log dir: {}", e)))?;
     }
-    
+
     #[cfg(target_os = "macos")]
     {
         std::process::Command::new("open")
@@ -43,7 +45,7 @@ pub async fn open_log_dir(app: tauri::AppHandle) -> AppResult<()> {
             .spawn()
             .map_err(|e| AppError::Io(format!("Failed to open log dir: {}", e)))?;
     }
-    
+
     #[cfg(target_os = "linux")]
     {
         std::process::Command::new("xdg-open")
