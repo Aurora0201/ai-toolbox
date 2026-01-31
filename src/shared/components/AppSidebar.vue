@@ -45,6 +45,14 @@
         {{ $t('common.models') }}
       </router-link>
       <router-link
+        to="/playground"
+        class="px-3 py-2 text-text-sub rounded-md text-sm font-medium transition-colors flex items-center gap-2.5 hover:bg-background-element hover:text-text-main"
+        active-class="bg-primary text-white shadow-sm hover:bg-primary hover:text-white"
+      >
+        <Code2 class="w-[18px] h-[18px]" />
+        {{ $t('common.playground') }}
+      </router-link>
+      <router-link
         to="/settings"
         class="px-3 py-2 text-text-sub rounded-md text-sm font-medium transition-colors flex items-center gap-2.5 hover:bg-background-element hover:text-text-main"
         active-class="bg-primary text-white shadow-sm hover:bg-primary hover:text-white"
@@ -57,6 +65,6 @@
 </template>
 
 <script setup>
-import { Home, MessageSquare, LayoutDashboard, Box, Settings, Globe } from 'lucide-vue-next';
+import { Home, MessageSquare, LayoutDashboard, Box, Settings, Globe, Code2 } from 'lucide-vue-next';
 </script>
 

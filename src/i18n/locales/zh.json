@@ -6,6 +6,7 @@
     "translator": "翻译",
     "dashboard": "仪表盘",
     "models": "模型",
+    "playground": "沙盒",
     "settings": "设置",
     "confirm": "确认",
     "cancel": "取消",
@@ -109,6 +110,13 @@
       "repeatPenalty": "重复惩罚 (Repeat Penalty)",
       "seed": "随机种子 (Seed)"
     }
+  },
+  "playground": {
+    "title": "HTML 运行沙盒",
+    "subtitle": "即时编写并运行 HTML/CSS/JS 代码。",
+    "run": "运行代码",
+    "previewTitle": "预览",
+    "close": "关闭"
   },
   "settings": {
     "title": "设置",

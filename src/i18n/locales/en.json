@@ -6,6 +6,7 @@
     "translator": "Translator",
     "dashboard": "Dashboard",
     "models": "Models",
+    "playground": "Playground",
     "settings": "Settings",
     "confirm": "Confirm",
     "cancel": "Cancel",
@@ -109,6 +110,13 @@
       "repeatPenalty": "Repeat Penalty",
       "seed": "Seed"
     }
+  },
+  "playground": {
+    "title": "HTML Playground",
+    "subtitle": "Write and run HTML/CSS/JS code instantly.",
+    "run": "Run Code",
+    "previewTitle": "Preview",
+    "close": "Close"
   },
   "settings": {
     "title": "Settings",

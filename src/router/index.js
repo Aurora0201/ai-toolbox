@@ -27,6 +27,11 @@ const routes = [
     component: () => import('../features/models/ModelsView.vue')
   },
   {
+    path: '/playground',
+    name: 'Playground',
+    component: () => import('../features/playground/PlaygroundView.vue')
+  },
+  {
     path: '/settings',
     name: 'Settings',
     component: () => import('../features/settings/SettingsView.vue')
