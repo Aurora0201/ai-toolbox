@@ -14,6 +14,7 @@ pub async fn get_gpu_info() -> AppResult<GpuInfo> {
     let mut info = GpuInfo::default();
 
     #[cfg(target_os = "windows")]
+    use crate::domain::error::AppError;
     {
         use crate::domain::error::AppError;
         let ps_cmd = r#"
