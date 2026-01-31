@@ -1,4 +1,4 @@
-use crate::domain::error::{AppError, AppResult};
+use crate::domain::error::{ AppResult};
 
 #[derive(serde::Serialize, Clone, Default)]
 pub struct GpuInfo {
@@ -15,6 +15,7 @@ pub async fn get_gpu_info() -> AppResult<GpuInfo> {
 
     #[cfg(target_os = "windows")]
     {
+        use crate::domain::error::AppError;
         let ps_cmd = r#"
             $total = Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\*' -ErrorAction SilentlyContinue | Where-Object { $_.'HardwareInformation.QwMemorySize' -gt 0 } | Sort-Object 'HardwareInformation.QwMemorySize' -Descending | Select-Object -First 1 DriverDesc, 'HardwareInformation.QwMemorySize'
             $used = Get-Counter '\GPU Adapter Memory(*)\Dedicated Usage' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty CounterSamples | Sort-Object CookedValue -Descending | Select-Object -First 1 CookedValue
