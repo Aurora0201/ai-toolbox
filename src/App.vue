@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import AppSidebar from './components/AppSidebar.vue'
-import TitleBar from './components/TitleBar.vue'
-import ToastContainer from './components/ToastContainer.vue'
-import ConfirmDialog from './components/common/ConfirmDialog.vue'
+import AppSidebar from './shared/components/AppSidebar.vue'
+import TitleBar from './shared/components/TitleBar.vue'
+import ToastContainer from './shared/components/ToastContainer.vue'
+import ConfirmDialog from './shared/components/ConfirmDialog.vue'
 import { useSettingsStore } from './store/settings'
 import { useConfirm } from './composables/useConfirm'
 import { Loader2 } from 'lucide-vue-next'

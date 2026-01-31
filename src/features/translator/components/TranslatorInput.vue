@@ -5,13 +5,14 @@
       class="bg-background-surface border border-border rounded-[28px] shadow-lg transition-all duration-300 focus-within:border-primary/50 focus-within:ring-4 focus-within:ring-primary/10"
       :class="{ 'opacity-50 pointer-events-none': disabled && !isGenerating }"
     >
-      <!-- Top Bar: Model Selector & Actions -->
+      <!-- Top Bar: Model & Language Selector -->
       <div class="flex items-center justify-between px-5 pt-3 pb-1">
         <div class="flex items-center gap-2">
+          <!-- Model Selector -->
           <div class="relative group">
             <button
               class="flex items-center gap-1.5 px-2.5 py-1 bg-background-element rounded-full border border-border hover:border-primary/30 transition-all active:scale-95"
-              @click="toggleDropdown"
+              @click="toggleModelDropdown"
             >
               <Cpu class="w-3.5 h-3.5 text-primary" />
               <span class="text-xs font-bold text-text-main">
@@ -19,11 +20,11 @@
               </span>
               <ChevronDown 
                 class="w-3.5 h-3.5 text-text-sub transition-transform duration-200"
-                :class="{ 'rotate-180': isDropdownOpen }"
+                :class="{ 'rotate-180': isModelDropdownOpen }"
               />
             </button>
 
-            <!-- Custom Dropdown Menu -->
+            <!-- Model Dropdown Menu -->
             <transition
               enter-active-class="transition ease-out duration-200"
               enter-from-class="opacity-0 translate-y-1 scale-95"
@@ -33,7 +34,7 @@
               leave-to-class="opacity-0 translate-y-1 scale-95"
             >
               <div
-                v-if="isDropdownOpen"
+                v-if="isModelDropdownOpen"
                 class="absolute bottom-full left-0 mb-2 w-48 bg-background-surface border border-border rounded-lg shadow-xl py-1 z-50 overflow-hidden"
               >
                 <div 
@@ -60,6 +61,56 @@
               </div>
             </transition>
           </div>
+
+          <!-- Target Language Selector -->
+          <div class="flex items-center gap-2 text-xs text-text-sub">
+            <ArrowRight class="w-3.5 h-3.5" />
+          </div>
+
+          <div class="relative group">
+            <button
+              class="flex items-center gap-1.5 px-2.5 py-1 bg-background-element rounded-full border border-border hover:border-primary/30 transition-all active:scale-95"
+              @click="toggleLangDropdown"
+            >
+              <Languages class="w-3.5 h-3.5 text-secondary" />
+              <span class="text-xs font-bold text-text-main">
+                {{ targetLanguage }}
+              </span>
+              <ChevronDown 
+                class="w-3.5 h-3.5 text-text-sub transition-transform duration-200"
+                :class="{ 'rotate-180': isLangDropdownOpen }"
+              />
+            </button>
+
+            <!-- Language Dropdown Menu -->
+            <transition
+              enter-active-class="transition ease-out duration-200"
+              enter-from-class="opacity-0 translate-y-1 scale-95"
+              enter-to-class="opacity-100 translate-y-0 scale-100"
+              leave-active-class="transition ease-in duration-150"
+              leave-from-class="opacity-100 translate-y-0 scale-100"
+              leave-to-class="opacity-0 translate-y-1 scale-95"
+            >
+              <div
+                v-if="isLangDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 w-40 bg-background-surface border border-border rounded-lg shadow-xl py-1 z-50 overflow-hidden max-h-60 overflow-y-auto"
+              >
+                <button
+                  v-for="lang in availableLanguages"
+                  :key="lang"
+                  class="w-full text-left px-3 py-2 text-xs font-medium transition-colors hover:bg-background-element flex items-center justify-between"
+                  :class="targetLanguage === lang ? 'text-primary' : 'text-text-main'"
+                  @click="selectLanguage(lang)"
+                >
+                  <span>{{ lang }}</span>
+                  <Check 
+                    v-if="targetLanguage === lang"
+                    class="w-3 h-3" 
+                  />
+                </button>
+              </div>
+            </transition>
+          </div>
           
           <button 
             v-if="messagesCount > 0"
@@ -68,23 +119,6 @@
           >
             <Trash2 class="w-3.5 h-3.5" />
             {{ $t('chat.clear') }}
-          </button>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <input
-            ref="fileInput"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            @change="handleFileChange"
-          >
-          <button 
-            class="p-1.5 text-text-sub hover:text-primary transition-colors rounded-full hover:bg-primary/10"
-            :title="$t('chat.uploadImage')"
-            @click="$refs.fileInput.click()"
-          >
-            <ImagePlus class="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -99,29 +133,12 @@
           rows="1"
           @input="adjustHeight"
           @keydown="handleKeydown"
-          @paste="handlePaste"
         />
       </div>
 
       <!-- Bottom Bar: Status & Send -->
       <div class="flex items-center justify-between px-5 pb-3 pt-1">
         <div class="flex flex-wrap gap-2 items-center">
-          <div 
-            v-for="(img, idx) in images" 
-            :key="idx"
-            class="group relative w-12 h-12 rounded-lg border border-border overflow-hidden bg-background-element"
-          >
-            <img
-              :src="img"
-              class="w-full h-full object-cover"
-            >
-            <button 
-              class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-              @click="removeImage(idx)"
-            >
-              <X class="w-3.5 h-3.5 text-white" />
-            </button>
-          </div>
           <span
             v-if="text.length > 0"
             class="text-[10px] font-bold text-text-sub uppercase tracking-wider font-mono"
@@ -151,7 +168,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { Cpu, ImagePlus, Trash2, ArrowUp, Square, X, ChevronDown, Check } from 'lucide-vue-next'
-import { useConfirm } from '../../composables/useConfirm'
+import { useConfirm } from '../../../composables/useConfirm'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
@@ -163,6 +180,10 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  targetLanguage: {
+    type: String,
+    default: 'English'
+  },
   isGenerating: Boolean,
   messagesCount: {
     type: Number,
@@ -171,36 +192,61 @@ const props = defineProps({
   disabled: Boolean,
   placeholder: {
     type: String,
-    default: 'Type a message...'
+    default: 'Enter text to translate...'
   }
 })
 
-const emit = defineEmits(['send', 'stop', 'clear', 'update:selectedModel'])
+const emit = defineEmits(['send', 'stop', 'clear', 'update:selectedModel', 'update:targetLanguage'])
 
 const { confirm } = useConfirm()
 const { t } = useI18n()
 const text = ref('')
-const images = ref([])
 const inputRef = ref(null)
-const fileInput = ref(null)
-const isDropdownOpen = ref(false)
+const isModelDropdownOpen = ref(false)
+const isLangDropdownOpen = ref(false)
+
+const availableLanguages = [
+  'English',
+  'Chinese',
+  'Spanish',
+  'French',
+  'German',
+  'Japanese',
+  'Korean',
+  'Russian',
+  'Italian',
+  'Portuguese'
+]
 
 const canSend = computed(() => {
-  return text.value.trim().length > 0 || images.value.length > 0
+  return text.value.trim().length > 0
 })
 
-const toggleDropdown = (e) => {
+const toggleModelDropdown = (e) => {
   e.stopPropagation()
-  isDropdownOpen.value = !isDropdownOpen.value
+  isModelDropdownOpen.value = !isModelDropdownOpen.value
+  isLangDropdownOpen.value = false
+}
+
+const toggleLangDropdown = (e) => {
+  e.stopPropagation()
+  isLangDropdownOpen.value = !isLangDropdownOpen.value
+  isModelDropdownOpen.value = false
 }
 
 const selectModel = (name) => {
   emit('update:selectedModel', name)
-  isDropdownOpen.value = false
+  isModelDropdownOpen.value = false
 }
 
-const closeDropdown = () => {
-  isDropdownOpen.value = false
+const selectLanguage = (lang) => {
+  emit('update:targetLanguage', lang)
+  isLangDropdownOpen.value = false
+}
+
+const closeDropdowns = () => {
+  isModelDropdownOpen.value = false
+  isLangDropdownOpen.value = false
 }
 
 const adjustHeight = () => {
@@ -226,12 +272,10 @@ const handleSend = () => {
   if (!canSend.value || props.disabled) return
   
   emit('send', {
-    text: text.value,
-    images: [...images.value]
+    text: text.value
   })
   
   text.value = ''
-  images.value = []
   nextTick(() => adjustHeight())
 }
 
@@ -245,42 +289,13 @@ const handleClear = async () => {
   if (ok) emit('clear')
 }
 
-const handleFileChange = (e) => {
-  const files = Array.from(e.target.files)
-  files.forEach(processFile)
-  fileInput.value.value = ''
-}
-
-const handlePaste = (e) => {
-  const items = (e.clipboardData || e.originalEvent.clipboardData).items
-  for (const item of items) {
-    if (item.type.indexOf('image') !== -1) {
-      const file = item.getAsFile()
-      processFile(file)
-    }
-  }
-}
-
-const processFile = (file) => {
-  if (!file) return
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    images.value.push(e.target.result)
-  }
-  reader.readAsDataURL(file)
-}
-
-const removeImage = (idx) => {
-  images.value.splice(idx, 1)
-}
-
 onMounted(() => {
   inputRef.value?.focus()
-  window.addEventListener('click', closeDropdown)
+  window.addEventListener('click', closeDropdowns)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('click', closeDropdown)
+  window.removeEventListener('click', closeDropdowns)
 })
 
 defineExpose({

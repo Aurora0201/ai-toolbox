@@ -245,15 +245,13 @@
 
 import { ref, computed, watch } from 'vue'
 
-import { useSettingsStore } from '../store/settings'
+import { useSettingsStore } from '../../store/settings'
 
-import { useToast } from '../composables/useToast'
+import { useToast } from '../../composables/useToast'
 
-import { useConfirm } from '../composables/useConfirm'
+import { useConfirm } from '../../composables/useConfirm'
 
-import { invoke } from '@tauri-apps/api/core'
-
-import packageJson from '../../package.json'
+import packageJson from '../../../package.json'
 
 import { Loader2, Github, FolderOpen } from 'lucide-vue-next'
 
@@ -365,7 +363,7 @@ const openLogs = async () => {
 
   try {
 
-    await invoke('open_log_dir')
+    await settings.openLogs()
 
   } catch (error) {
 
@@ -399,11 +397,7 @@ const handleCheckConnection = async () => {
 
   try {
 
-    // Temporarily update backend config to check this URL
-
-    await invoke('update_ollama_config', { endpoint: tempEndpoint.value })
-
-    await invoke('check_connection')
+    await settings.testConnection(tempEndpoint.value)
 
     connectionStatus.value = 'success'
 
@@ -418,14 +412,6 @@ const handleCheckConnection = async () => {
   } finally {
 
     isChecking.value = false
-
-    // Restore saved endpoint in backend if it wasn't saved to maintain state consistency
-
-    if (tempEndpoint.value !== settings.ollamaEndpoint) {
-
-        await invoke('update_ollama_config', { endpoint: settings.ollamaEndpoint })
-
-    }
 
   }
 
@@ -479,7 +465,7 @@ const handleResetData = async () => {
 
     try {
 
-      await invoke('clear_all_data')
+      await settings.clearData()
 
       // Clear localStorage
 
