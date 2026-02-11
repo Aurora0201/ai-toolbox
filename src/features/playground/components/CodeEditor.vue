@@ -1,6 +1,5 @@
 <template>
   <div class="relative w-full h-full bg-[#2d2d2d] border border-[#404040] border-t-0 rounded-b-lg overflow-hidden flex flex-row">
-    
     <!-- Left Column: Line Numbers -->
     <div class="relative flex-shrink-0 w-[48px] h-full bg-[#2d2d2d] border-r border-[#404040] z-20 overflow-hidden text-right select-none">
       <!-- 
@@ -12,7 +11,10 @@
         class="absolute top-0 left-0 w-full py-4 pr-3 text-[#6e7681] font-mono text-[14px] leading-[21px]"
         :style="{ transform: `translateY(-${scrollTop}px)` }"
       >
-        <div v-for="n in lineCount" :key="n">
+        <div
+          v-for="n in lineCount"
+          :key="n"
+        >
           {{ n }}
         </div>
       </div>
@@ -29,7 +31,7 @@
         wrap="off"
         @input="handleInput"
         @scroll="syncScroll"
-      ></textarea>
+      />
 
       <!-- Bottom Layer: Syntax Highlighting -->
       <pre
@@ -39,7 +41,7 @@
       ><!-- eslint-disable-next-line vue/no-v-html --><code
           :class="`language-${language}`"
           v-html="highlightedCode"
-        ></code></pre>
+      /></pre>
     </div>
   </div>
 </template>

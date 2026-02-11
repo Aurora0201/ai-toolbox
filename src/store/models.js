@@ -15,6 +15,7 @@ export const useModelStore = defineStore('models', {
     selectedModel: '',    // Currently selected model for chat
     gpuInfo: { name: '', total: 0, used: 0 }, // GPU resource usage
     pullProgress: { status: '', completed: 0, total: 0, percentage: 0 }, // Progress of current model pull
+    _listenersReady: false, // Internal flag to prevent multiple event listeners
   }),
 
   actions: {
@@ -71,6 +72,26 @@ export const useModelStore = defineStore('models', {
           percentage = Math.round((completed / total) * 100)
         }
         this.pullProgress = { status, completed, total, percentage }
+      })
+    },
+
+    /**
+     * Sets up listeners for backend monitoring events.
+     */
+    async setupStatusListeners() {
+      // Listen for running models updates
+      await listen('running-models-update', (event) => {
+        this.runningModels = event.payload
+      })
+
+      // Listen for GPU info updates
+      await listen('gpu-info-update', (event) => {
+        const info = event.payload
+        this.gpuInfo = {
+          name: info.name,
+          total: info.total_mb * 1024 * 1024,
+          used: info.used_mb * 1024 * 1024
+        }
       })
     },
 
@@ -143,30 +164,27 @@ export const useModelStore = defineStore('models', {
     },
 
     /**
-     * Starts periodic polling for model and system status.
-     * Prevents duplicate intervals.
+     * Starts monitoring for model and system status.
+     * Uses backend-driven events instead of frontend polling.
      */
-    startMonitoring() {
-      if (this._pollInterval) return
+    async startMonitoring() {
+      if (this._listenersReady) return
       
-      // Immediate fetch
+      // Initial fetch to get current state immediately
       this.fetchRunningModels()
       this.fetchGpuInfo()
       
-      this._pollInterval = setInterval(() => {
-        this.fetchRunningModels()
-        this.fetchGpuInfo()
-      }, 5000)
+      await this.setupStatusListeners()
+      this._listenersReady = true
     },
 
     /**
      * Stops the periodic polling.
+     * In the event-driven model, this is mostly a no-op as the backend
+     * continues to monitor, but we keep the method for API compatibility.
      */
     stopMonitoring() {
-      if (this._pollInterval) {
-        clearInterval(this._pollInterval)
-        this._pollInterval = null
-      }
+      // Listeners remain active for the life of the store
     }
   }
 })
