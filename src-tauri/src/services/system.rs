@@ -1,6 +1,6 @@
 use crate::domain::error::{ AppResult};
 
-#[derive(serde::Serialize, Clone, Default)]
+#[derive(serde::Serialize, serde::Deserialize, Clone, Default, PartialEq)]
 pub struct GpuInfo {
     pub name: String,
     pub total_mb: u64,

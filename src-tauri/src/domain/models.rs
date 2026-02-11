@@ -15,7 +15,7 @@ pub struct TagsResponse {
 }
 
 /// Represents a model currently running in memory.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct RunningModel {
     pub name: String,
     pub size: i64,

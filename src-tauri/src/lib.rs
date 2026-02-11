@@ -75,6 +75,10 @@ pub fn run() {
                 db: Mutex::new(conn),
                 ollama: OllamaClient::new("http://localhost:11434".to_string()),
             });
+
+            // Start background monitoring
+            services::monitoring::start_monitoring(app.handle().clone());
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
